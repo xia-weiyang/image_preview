@@ -1,7 +1,7 @@
 name: image_preview
 description: A new Flutter package project.
 version: 0.0.1
-author:
+author: xia-weiyang
 homepage:
 
 environment:
@@ -10,6 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  cached_network_image: ^0.8.0
+  photo_view: ^0.3.3
 
 dev_dependencies:
   flutter_test:
