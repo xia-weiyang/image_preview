@@ -8,6 +8,7 @@ class ImageView extends StatefulWidget {
     Key key,
     @required this.url,
     this.heroTag,
+    this.scaleStateChangedCallback,
   }) : super(key: key);
 
   @override
@@ -16,6 +17,8 @@ class ImageView extends StatefulWidget {
   final String url;
 
   final String heroTag;
+
+  final PhotoViewScaleStateChangedCallback scaleStateChangedCallback;
 }
 
 class _ImageViewState extends State<ImageView> {
@@ -38,6 +41,7 @@ class _ImageViewState extends State<ImageView> {
             imageProvider: provider,
             heroTag: widget.heroTag,
             loadingChild: ImageLoading(),
+            scaleStateChangedCallback: widget.scaleStateChangedCallback,
             minScale: PhotoViewComputedScale.contained * 1.0,
             maxScale: PhotoViewComputedScale.covered * 3.0,
           ),
