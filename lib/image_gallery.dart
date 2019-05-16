@@ -8,6 +8,7 @@ class ImageGalleryPage extends StatefulWidget {
     Key key,
     this.initialIndex = 0,
     @required this.imageUrls,
+    this.onLongPressHandler,
   })  : assert(initialIndex >= 0 && initialIndex < imageUrls.length),
         super(key: key);
 
@@ -17,6 +18,8 @@ class ImageGalleryPage extends StatefulWidget {
   final int initialIndex;
 
   final List<String> imageUrls;
+
+  final OnLongPressHandler onLongPressHandler;
 }
 
 class _ImageGalleryPageState extends State<ImageGalleryPage> {
@@ -75,6 +78,7 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
         url: widget.imageUrls[index],
         heroTag: widget.imageUrls[index],
         scaleStateChangedCallback: scaleStateChangedCallback,
+        onLongPressHandler: widget.onLongPressHandler,
       ),
     );
   }

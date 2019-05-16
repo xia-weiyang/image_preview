@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:photo_view/photo_view.dart';
 
+typedef OnLongPressHandler(String ingUrl);
+
 class ImageView extends StatefulWidget {
   const ImageView({
     Key key,
     @required this.url,
     this.heroTag,
     this.scaleStateChangedCallback,
+    this.onLongPressHandler,
   }) : super(key: key);
 
   @override
@@ -19,6 +22,8 @@ class ImageView extends StatefulWidget {
   final String heroTag;
 
   final PhotoViewScaleStateChangedCallback scaleStateChangedCallback;
+
+  final OnLongPressHandler onLongPressHandler;
 }
 
 class _ImageViewState extends State<ImageView> {
@@ -36,6 +41,10 @@ class _ImageViewState extends State<ImageView> {
         return GestureDetector(
           onTap: () {
             Navigator.pop(context);
+          },
+          onLongPress: () {
+            if (widget.onLongPressHandler != null)
+              widget.onLongPressHandler(widget.url);
           },
           child: PhotoView(
             imageProvider: provider,
