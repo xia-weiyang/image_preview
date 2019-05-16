@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -29,33 +31,39 @@ class ImageView extends StatefulWidget {
 class _ImageViewState extends State<ImageView> {
   @override
   Widget build(BuildContext context) {
-    return CachedNetworkImage(
-      imageUrl: widget.url,
-      placeholder: (context, str) => ImageLoading(),
-      errorWidget: (context, str, e) {
-        return ImageError(
-          msg: '$str \n $e',
-        );
+    return widget.url.startsWith('http')
+        ? CachedNetworkImage(
+            imageUrl: widget.url,
+            placeholder: (context, str) => ImageLoading(),
+            errorWidget: (context, str, e) {
+              return ImageError(
+                msg: '$str \n $e',
+              );
+            },
+            imageBuilder: (context, provider) {
+              return _buildImageWidget(provider);
+            },
+          )
+        : _buildImageWidget(FileImage(File.fromUri(Uri.file(widget.url))));
+  }
+
+  Widget _buildImageWidget(ImageProvider imageProvide) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pop(context);
       },
-      imageBuilder: (context, provider) {
-        return GestureDetector(
-          onTap: () {
-            Navigator.pop(context);
-          },
-          onLongPress: () {
-            if (widget.onLongPressHandler != null)
-              widget.onLongPressHandler(widget.url);
-          },
-          child: PhotoView(
-            imageProvider: provider,
-            heroTag: widget.heroTag,
-            loadingChild: ImageLoading(),
-            scaleStateChangedCallback: widget.scaleStateChangedCallback,
-            minScale: PhotoViewComputedScale.contained * 1.0,
-            maxScale: PhotoViewComputedScale.covered * 3.0,
-          ),
-        );
+      onLongPress: () {
+        if (widget.onLongPressHandler != null)
+          widget.onLongPressHandler(widget.url);
       },
+      child: PhotoView(
+        imageProvider: imageProvide,
+        heroTag: widget.heroTag,
+        loadingChild: ImageLoading(),
+        scaleStateChangedCallback: widget.scaleStateChangedCallback,
+        minScale: PhotoViewComputedScale.contained * 1.0,
+        maxScale: PhotoViewComputedScale.covered * 3.0,
+      ),
     );
   }
 }
