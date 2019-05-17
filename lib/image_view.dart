@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:photo_view/photo_view.dart';
 
-typedef OnLongPressHandler(String ingUrl);
+typedef OnLongPressHandler(BuildContext context, String ingUrl);
 
 class ImageView extends StatefulWidget {
   const ImageView({
@@ -54,7 +54,7 @@ class _ImageViewState extends State<ImageView> {
       },
       onLongPress: () {
         if (widget.onLongPressHandler != null)
-          widget.onLongPressHandler(widget.url);
+          widget.onLongPressHandler(context, widget.url);
       },
       child: PhotoView(
         imageProvider: imageProvide,

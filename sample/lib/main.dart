@@ -90,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         'https://images.unsplash.com/photo-1458668383970-8ddd3927deed?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjE2ODQ0fQ&s=3a819ffc36f7749d2cb076e572b9d790&auto=format&fit=crop&w=747&q=80'
                       ],
                       index: 1,
-                      onLongPressHandler: (url) => print(url));
+                      onLongPressHandler: (con, url) => print(url));
                 },
                 child: Text('openImage'),
               ),
