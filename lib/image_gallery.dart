@@ -4,13 +4,16 @@ import 'package:photo_view/photo_view.dart';
 import 'image_view.dart';
 
 class ImageGalleryPage extends StatefulWidget {
-  const ImageGalleryPage({
+  ImageGalleryPage({
     Key key,
     this.initialIndex = 0,
     @required this.imageUrls,
     this.onLongPressHandler,
-  })  : assert(initialIndex >= 0 && initialIndex < imageUrls.length),
-        super(key: key);
+    this.heroTags,
+  }) : super(key: key) {
+    assert(initialIndex >= 0 && initialIndex < imageUrls.length);
+    if (heroTags != null) assert(heroTags.length == imageUrls.length);
+  }
 
   @override
   _ImageGalleryPageState createState() => _ImageGalleryPageState();
@@ -18,6 +21,8 @@ class ImageGalleryPage extends StatefulWidget {
   final int initialIndex;
 
   final List<String> imageUrls;
+
+  final List<String> heroTags;
 
   final OnLongPressHandler onLongPressHandler;
 }
@@ -76,7 +81,9 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
     return ClipRect(
       child: ImageView(
         url: widget.imageUrls[index],
-        heroTag: widget.imageUrls[index],
+        heroTag: widget.heroTags != null
+            ? widget.heroTags[index]
+            : widget.imageUrls[index],
         scaleStateChangedCallback: scaleStateChangedCallback,
         onLongPressHandler: widget.onLongPressHandler,
       ),
