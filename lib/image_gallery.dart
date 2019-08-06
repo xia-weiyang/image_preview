@@ -10,6 +10,7 @@ class ImageGalleryPage extends StatefulWidget {
     @required this.imageUrls,
     this.onLongPressHandler,
     this.heroTags,
+    this.errorMsg,
   }) : super(key: key) {
     assert(initialIndex >= 0 && initialIndex < imageUrls.length);
     if (heroTags != null) assert(heroTags.length == imageUrls.length);
@@ -25,6 +26,8 @@ class ImageGalleryPage extends StatefulWidget {
   final List<String> heroTags;
 
   final OnLongPressHandler onLongPressHandler;
+
+  final String errorMsg;
 }
 
 class _ImageGalleryPageState extends State<ImageGalleryPage> {
@@ -68,7 +71,9 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
         child: PageView.builder(
           controller: _controller,
           itemCount: itemCount,
-          itemBuilder: _buildItem,
+          itemBuilder: (BuildContext context, int index) {
+            return _buildItem(context, index, widget.errorMsg);
+          },
           physics: _locked
               ? const NeverScrollableScrollPhysics()
               : ClampingScrollPhysics(),
@@ -77,7 +82,7 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
     );
   }
 
-  Widget _buildItem(BuildContext context, int index) {
+  Widget _buildItem(BuildContext context, int index, String errorMsg) {
     return ClipRect(
       child: ImageView(
         url: widget.imageUrls[index],
@@ -86,6 +91,7 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
             : widget.imageUrls[index],
         scaleStateChangedCallback: scaleStateChangedCallback,
         onLongPressHandler: widget.onLongPressHandler,
+        errorMsg: errorMsg,
       ),
     );
   }

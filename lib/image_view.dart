@@ -14,6 +14,7 @@ class ImageView extends StatefulWidget {
     this.heroTag,
     this.scaleStateChangedCallback,
     this.onLongPressHandler,
+    this.errorMsg,
   }) : super(key: key);
 
   @override
@@ -22,6 +23,8 @@ class ImageView extends StatefulWidget {
   final String url;
 
   final String heroTag;
+
+  final String errorMsg;
 
   final PhotoViewScaleStateChangedCallback scaleStateChangedCallback;
 
@@ -37,7 +40,8 @@ class _ImageViewState extends State<ImageView> {
             placeholder: (context, str) => ImageLoading(),
             errorWidget: (context, str, e) {
               return ImageError(
-                msg: '$str \n $e',
+                msg: widget.errorMsg,
+                describe: '$str \n $e',
               );
             },
             imageBuilder: (context, provider) {
@@ -81,9 +85,15 @@ class ImageLoading extends StatelessWidget {
 }
 
 class ImageError extends StatelessWidget {
+  final String describe;
   final String msg;
 
-  const ImageError({Key key, this.msg}) : super(key: key);
+  const ImageError({
+    Key key,
+    this.msg = '图片加载失败',
+    this.describe,
+  })  : assert(msg != null),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -98,14 +108,14 @@ class ImageError extends StatelessWidget {
         ),
         SizedBox(height: 10),
         Text(
-          '图片加载失败',
+          msg,
           style: TextStyle(color: Colors.red),
         ),
         SizedBox(height: 15),
         Container(
           width: MediaQuery.of(context).size.width - 100,
           child: Text(
-            msg ?? '',
+            describe ?? '',
             style: TextStyle(color: Colors.grey),
           ),
         ),
