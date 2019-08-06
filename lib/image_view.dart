@@ -15,6 +15,7 @@ class ImageView extends StatefulWidget {
     this.scaleStateChangedCallback,
     this.onLongPressHandler,
     this.errorMsg,
+    this.infoWidget,
   }) : super(key: key);
 
   @override
@@ -29,12 +30,20 @@ class ImageView extends StatefulWidget {
   final PhotoViewScaleStateChangedCallback scaleStateChangedCallback;
 
   final OnLongPressHandler onLongPressHandler;
+
+  /// 可用于描述图片
+  final Widget infoWidget;
 }
 
 class _ImageViewState extends State<ImageView> {
+  var _currentHeight = 130.0;
+  final _maxHeight = 130.0;
+  final _minHeight = 20.0;
+
   @override
   Widget build(BuildContext context) {
-    return widget.url.startsWith('http')
+    final widgets = <Widget>[];
+    widgets.add(widget.url.startsWith('http')
         ? CachedNetworkImage(
             imageUrl: widget.url,
             placeholder: (context, str) => ImageLoading(),
@@ -48,7 +57,46 @@ class _ImageViewState extends State<ImageView> {
               return _buildImageWidget(provider);
             },
           )
-        : _buildImageWidget(FileImage(File.fromUri(Uri.file(widget.url))));
+        : _buildImageWidget(FileImage(File.fromUri(Uri.file(widget.url)))));
+    if (widget.infoWidget != null) {
+      widgets.add(Align(
+        alignment: Alignment.bottomCenter,
+        child: GestureDetector(
+          child: Container(
+              height: _currentHeight,
+              width: MediaQuery.of(context).size.width,
+              color: const Color(0x44000000),
+              child: SingleChildScrollView(
+                physics: const NeverScrollableScrollPhysics(),
+                child: widget.infoWidget,
+              )),
+          onVerticalDragUpdate: _handleDrag,
+        ),
+      ));
+    }
+
+    return Stack(children: widgets);
+  }
+
+  /// 处理拖拽
+  void _handleDrag(DragUpdateDetails details) {
+    // debugPrint(details.toString());
+    var temp = _currentHeight;
+
+    /// 向下滑动
+    if (details.delta.dy > 0 && _currentHeight > _minHeight) {
+      final y = _currentHeight - details.delta.dy;
+      temp = y <= _minHeight ? _minHeight : y;
+    }
+
+    /// 向上滑动
+    if (details.delta.dy < 0 && _currentHeight < _maxHeight) {
+      final y = _currentHeight - details.delta.dy;
+      temp = y >= _maxHeight ? _maxHeight : y;
+    }
+
+    // debugPrint(temp.toString());
+    setState(() => _currentHeight = temp);
   }
 
   Widget _buildImageWidget(ImageProvider imageProvide) {

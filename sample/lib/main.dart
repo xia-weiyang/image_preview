@@ -95,7 +95,19 @@ class _MyHomePageState extends State<MyHomePage> {
                   openImagesPage(context,
                       imgUrls: _imageUrls,
                       index: i,
-                      onLongPressHandler: (con, url) => print(url));
+                      onLongPressHandler: (con, url) => print(url),
+                      onPageChanged: (i, widget) async {
+                        if (widget != null) return widget;
+                        await Future.delayed(Duration(seconds: 3));
+                        return i == 0
+                            ? null
+                            : Text(
+                                '图片描述信息',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              );
+                      });
                 },
               ),
               tag: 'tag$i',

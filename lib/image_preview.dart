@@ -12,6 +12,7 @@ void openImagePage(
   String heroTag,
   String errorMsg,
   OnLongPressHandler onLongPressHandler,
+  OnPageChanged onPageChanged,
 }) {
   Navigator.push(context,
       MaterialPageRoute<void>(builder: (BuildContext context) {
@@ -20,12 +21,15 @@ void openImagePage(
       heroTags: [heroTag],
       errorMsg: errorMsg,
       onLongPressHandler: onLongPressHandler,
+      onPageChanged: onPageChanged,
     );
   }));
 }
 
 /// 打开多张图片
 /// [errorMsg] 当图片加载错误时的描述信息
+/// [onPageChanged] 切换图片时调用，第一次打开时也会被调用
+/// 返回的[Widget]可用于展示图片描述信息，如不需要可返回null
 void openImagesPage(
   BuildContext context, {
   @required List<String> imgUrls,
@@ -33,6 +37,7 @@ void openImagesPage(
   int index = 0,
   String errorMsg,
   OnLongPressHandler onLongPressHandler,
+  OnPageChanged onPageChanged,
 }) {
   Navigator.push(context,
       MaterialPageRoute<void>(builder: (BuildContext context) {
@@ -42,6 +47,7 @@ void openImagesPage(
       errorMsg: errorMsg,
       initialIndex: index,
       onLongPressHandler: onLongPressHandler,
+      onPageChanged: onPageChanged,
     );
   }));
 }

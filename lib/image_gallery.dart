@@ -3,6 +3,10 @@ import 'package:photo_view/photo_view.dart';
 
 import 'image_view.dart';
 
+/// 图片加载变化
+/// [infoWidget] 当为null时 此图片对应的没有图片描述信息
+typedef Future<Widget> OnPageChanged(int index, Widget infoWidget);
+
 class ImageGalleryPage extends StatefulWidget {
   ImageGalleryPage({
     Key key,
@@ -11,6 +15,7 @@ class ImageGalleryPage extends StatefulWidget {
     this.onLongPressHandler,
     this.heroTags,
     this.errorMsg,
+    this.onPageChanged,
   }) : super(key: key) {
     assert(initialIndex >= 0 && initialIndex < imageUrls.length);
     if (heroTags != null) assert(heroTags.length == imageUrls.length);
@@ -28,17 +33,24 @@ class ImageGalleryPage extends StatefulWidget {
   final OnLongPressHandler onLongPressHandler;
 
   final String errorMsg;
+
+  ///第一次打开图片也会被执行
+  final OnPageChanged onPageChanged;
 }
 
 class _ImageGalleryPageState extends State<ImageGalleryPage> {
   PageController _controller;
   bool _locked;
 
+  final _infoWidgetMap = Map<int, Widget>();
+
   @override
   void initState() {
     _controller = PageController(initialPage: widget.initialIndex);
     _locked = false;
     super.initState();
+
+    handlerPageChanged(widget.initialIndex);
   }
 
   void scaleStateChangedCallback(PhotoViewScaleState scaleState) {
@@ -71,8 +83,17 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
         child: PageView.builder(
           controller: _controller,
           itemCount: itemCount,
+          onPageChanged: (index) {
+            // print(index);
+            handlerPageChanged(index);
+          },
           itemBuilder: (BuildContext context, int index) {
-            return _buildItem(context, index, widget.errorMsg);
+            return _buildItem(
+              context,
+              index,
+              widget.errorMsg,
+              _infoWidgetMap[index],
+            );
           },
           physics: _locked
               ? const NeverScrollableScrollPhysics()
@@ -82,7 +103,20 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
     );
   }
 
-  Widget _buildItem(BuildContext context, int index, String errorMsg) {
+  void handlerPageChanged(int index) async {
+    if (widget.onPageChanged == null) return;
+
+    var tempWidget = await widget.onPageChanged(index, _infoWidgetMap[index]);
+
+    if (mounted) setState(() => _infoWidgetMap[index] = tempWidget);
+  }
+
+  Widget _buildItem(
+    BuildContext context,
+    int index,
+    String errorMsg,
+    Widget infoWidget,
+  ) {
     return ClipRect(
       child: ImageView(
         url: widget.imageUrls[index],
@@ -92,6 +126,7 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
         scaleStateChangedCallback: scaleStateChangedCallback,
         onLongPressHandler: widget.onLongPressHandler,
         errorMsg: errorMsg,
+        infoWidget: infoWidget,
       ),
     );
   }
