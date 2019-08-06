@@ -1,8 +1,8 @@
 name: image_preview
-description: Multi-image preview in your gallery.
+description: A new Flutter package project.
 version: 0.0.1
 author: xia-weiyang
-homepage: https://github.com/otjiushig/image_preview
+homepage:
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
