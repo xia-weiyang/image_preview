@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_preview/image_preview.dart';
 
@@ -45,6 +46,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final _imageUrls = <String>[
+    'http://upload.wikimedia.org/wikipedia/commons/3/33/Physical_Political_World_Map.jpg',
+    'https://images.unsplash.com/photo-1458668383970-8ddd3927deed?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjE2ODQ0fQ&s=3a819ffc36f7749d2cb076e572b9d790&auto=format&fit=crop&w=747&q=80',
+  ];
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -78,25 +84,23 @@ class _MyHomePageState extends State<MyHomePage> {
           // axis because Columns are vertical (the cross axis would be
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Hero(
-              child: FlatButton(
-                onPressed: () {
-                  // openImagePage(context,
-                  //     'http://upload.wikimedia.org/wikipedia/commons/3/33/Physical_Political_World_Map.jpg');
+          children: _imageUrls.map<Widget>((url) {
+            final i = _imageUrls.indexOf(url);
+            return Hero(
+              child: GestureDetector(
+                child: CachedNetworkImage(
+                  imageUrl: url,
+                ),
+                onTap: () {
                   openImagesPage(context,
-                      imgUrls: [
-                        'http://upload.wikimedia.org/wikipedia/commons/3/33/Physical_Political_World_Map.jpg',
-                        'https://images.unsplash.com/photo-1458668383970-8ddd3927deed?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjE2ODQ0fQ&s=3a819ffc36f7749d2cb076e572b9d790&auto=format&fit=crop&w=747&q=80'
-                      ],
-                      index: 1,
+                      imgUrls: _imageUrls,
+                      index: i,
                       onLongPressHandler: (con, url) => print(url));
                 },
-                child: Text('openImage'),
               ),
-              tag: 'test',
-            ),
-          ],
+              tag: 'tag$i',
+            );
+          }).toList(),
         ),
       ),
     );
