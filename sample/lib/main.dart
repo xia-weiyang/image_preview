@@ -47,8 +47,9 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final _imageUrls = <String>[
-    'http://upload.wikimedia.org/wikipedia/commons/3/33/Physical_Political_World_Map.jpg',
-    'https://images.unsplash.com/photo-1458668383970-8ddd3927deed?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjE2ODQ0fQ&s=3a819ffc36f7749d2cb076e572b9d790&auto=format&fit=crop&w=747&q=80',
+    'https://xia-weiyang.github.io/image/2.jpg',
+    'https://xia-weiyang.github.io/image/1.jpg',
+    'https://xia-weiyang.github.io/image/3.jpg',
   ];
 
   @override
@@ -65,9 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+      body: SingleChildScrollView(
         child: Column(
           // Column is also layout widget. It takes a list of children and
           // arranges them vertically. By default, it sizes itself to fit its
@@ -95,11 +94,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   openImagesPage(context,
                       imgUrls: _imageUrls,
                       index: i,
+                      heroTags: _imageUrls,
                       onLongPressHandler: (con, url) => print(url),
                       onPageChanged: (i, widget) async {
                         if (widget != null) return widget;
                         await Future.delayed(Duration(seconds: 3));
-                        return i == 0
+                        return i > 1
                             ? null
                             : Text(
                                 '图片描述信息',
@@ -110,7 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       });
                 },
               ),
-              tag: 'tag$i',
+              tag: url,
             );
           }).toList(),
         ),

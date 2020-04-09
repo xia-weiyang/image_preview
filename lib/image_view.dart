@@ -27,7 +27,7 @@ class ImageView extends StatefulWidget {
 
   final String errorMsg;
 
-  final PhotoViewScaleStateChangedCallback scaleStateChangedCallback;
+  final ValueChanged<PhotoViewScaleState> scaleStateChangedCallback;
 
   final OnLongPressHandler onLongPressHandler;
 
@@ -110,8 +110,8 @@ class _ImageViewState extends State<ImageView> {
       },
       child: PhotoView(
         imageProvider: imageProvide,
-        heroTag: widget.heroTag,
-        loadingChild: ImageLoading(),
+        heroAttributes: PhotoViewHeroAttributes(tag: widget.heroTag),
+        loadingBuilder: (con, event) => ImageLoading(),
         scaleStateChangedCallback: widget.scaleStateChangedCallback,
         minScale: PhotoViewComputedScale.contained * 1.0,
         maxScale: PhotoViewComputedScale.covered * 3.0,
