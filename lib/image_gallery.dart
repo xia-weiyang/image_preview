@@ -89,6 +89,7 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
           onTap: () {
             Navigator.of(context).pop();
           },
+          onDoubleTap: () {},
           child: PageView.builder(
             controller: _controller,
             itemCount: itemCount,
