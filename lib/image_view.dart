@@ -11,6 +11,7 @@ class ImageView extends StatefulWidget {
   const ImageView({
     Key key,
     @required this.url,
+    this.originalUrl,
     this.heroTag,
     this.scaleStateChangedCallback,
     this.onLongPressHandler,
@@ -22,6 +23,8 @@ class ImageView extends StatefulWidget {
   _ImageViewState createState() => _ImageViewState();
 
   final String url;
+
+  final String originalUrl;
 
   final String heroTag;
 
@@ -42,11 +45,17 @@ class _ImageViewState extends State<ImageView> {
 
   @override
   Widget build(BuildContext context) {
+    var imgUrl = widget.url;
+    if (widget.originalUrl != null && widget.originalUrl.isNotEmpty)
+      imgUrl = widget.originalUrl;
     final widgets = <Widget>[];
     widgets.add(widget.url.startsWith('http')
         ? CachedNetworkImage(
-            imageUrl: widget.url,
-            placeholder: (context, str) => ImageLoading(),
+            imageUrl: imgUrl,
+            placeholder: (context, str) => ImageLoading(
+              url: widget.url == widget.originalUrl ? null : widget.url,
+              tag: widget.heroTag,
+            ),
             errorWidget: (context, str, e) {
               return ImageError(
                 msg: widget.errorMsg,
@@ -57,7 +66,7 @@ class _ImageViewState extends State<ImageView> {
               return _buildImageWidget(provider);
             },
           )
-        : _buildImageWidget(FileImage(File.fromUri(Uri.file(widget.url)))));
+        : _buildImageWidget(FileImage(File.fromUri(Uri.file(imgUrl)))));
     if (widget.infoWidget != null) {
       widgets.add(Align(
         alignment: Alignment.bottomCenter,
@@ -101,9 +110,6 @@ class _ImageViewState extends State<ImageView> {
 
   Widget _buildImageWidget(ImageProvider imageProvide) {
     return GestureDetector(
-      onTap: () {
-        Navigator.pop(context);
-      },
       onLongPress: () {
         if (widget.onLongPressHandler != null)
           widget.onLongPressHandler(context, widget.url);
@@ -111,7 +117,6 @@ class _ImageViewState extends State<ImageView> {
       child: PhotoView(
         imageProvider: imageProvide,
         heroAttributes: PhotoViewHeroAttributes(tag: widget.heroTag),
-        loadingBuilder: (con, event) => ImageLoading(),
         scaleStateChangedCallback: widget.scaleStateChangedCallback,
         minScale: PhotoViewComputedScale.contained * 1.0,
         maxScale: PhotoViewComputedScale.covered * 3.0,
@@ -121,14 +126,39 @@ class _ImageViewState extends State<ImageView> {
 }
 
 class ImageLoading extends StatelessWidget {
+  final String url;
+  final String tag;
+
+  const ImageLoading({
+    Key key,
+    this.url,
+    this.tag,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return Center(
+    final widget = Center(
         child: SizedBox(
       child: CircularProgressIndicator(
         valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
       ),
     ));
+
+    return url == null
+        ? widget
+        : Stack(
+            children: <Widget>[
+              Center(
+                child: Hero(
+                  child: CachedNetworkImage(
+                    imageUrl: url,
+                  ),
+                  tag: tag,
+                ),
+              ),
+              widget,
+            ],
+          );
   }
 }
 
@@ -138,10 +168,9 @@ class ImageError extends StatelessWidget {
 
   const ImageError({
     Key key,
-    this.msg = '图片加载失败',
+    this.msg,
     this.describe,
-  })  : assert(msg != null),
-        super(key: key);
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +185,7 @@ class ImageError extends StatelessWidget {
         ),
         SizedBox(height: 10),
         Text(
-          msg,
+          msg ?? '图片加载失败',
           style: TextStyle(color: Colors.red),
         ),
         SizedBox(height: 15),

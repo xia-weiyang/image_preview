@@ -48,6 +48,12 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final _imageUrls = <String>[
     'https://xia-weiyang.github.io/image/2.jpg',
+    'https://xia-weiyang.github.io/image/1_thumbnail.jpg',
+    'https://xia-weiyang.github.io/image/3.jpg',
+  ];
+
+  final _imageOriginalUrls = <String>[
+    '',
     'https://xia-weiyang.github.io/image/1.jpg',
     'https://xia-weiyang.github.io/image/3.jpg',
   ];
@@ -93,6 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onTap: () {
                   openImagesPage(context,
                       imgUrls: _imageUrls,
+                      imgOriginalUrls: _imageOriginalUrls,
                       index: i,
                       heroTags: _imageUrls,
                       onLongPressHandler: (con, url) => print(url),

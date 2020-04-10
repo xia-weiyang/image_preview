@@ -12,13 +12,16 @@ class ImageGalleryPage extends StatefulWidget {
     Key key,
     this.initialIndex = 0,
     @required this.imageUrls,
+    this.imageOriginalUrls,
     this.onLongPressHandler,
     this.heroTags,
     this.errorMsg,
     this.onPageChanged,
   }) : super(key: key) {
     assert(initialIndex >= 0 && initialIndex < imageUrls.length);
-    if (heroTags != null) assert(heroTags.length == imageUrls.length);
+    assert(imageOriginalUrls == null ||
+        imageOriginalUrls.length == imageUrls.length);
+    assert(heroTags == null || heroTags.length == imageUrls.length);
   }
 
   @override
@@ -27,6 +30,8 @@ class ImageGalleryPage extends StatefulWidget {
   final int initialIndex;
 
   final List<String> imageUrls;
+
+  final List<String> imageOriginalUrls;
 
   final List<String> heroTags;
 
@@ -80,24 +85,29 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
         constraints: BoxConstraints.expand(
           height: MediaQuery.of(context).size.height,
         ),
-        child: PageView.builder(
-          controller: _controller,
-          itemCount: itemCount,
-          onPageChanged: (index) {
-            // print(index);
-            handlerPageChanged(index);
+        child: GestureDetector(
+          onTap: () {
+            Navigator.of(context).pop();
           },
-          itemBuilder: (BuildContext context, int index) {
-            return _buildItem(
-              context,
-              index,
-              widget.errorMsg,
-              _infoWidgetMap[index],
-            );
-          },
-          physics: _locked
-              ? const NeverScrollableScrollPhysics()
-              : ClampingScrollPhysics(),
+          child: PageView.builder(
+            controller: _controller,
+            itemCount: itemCount,
+            onPageChanged: (index) {
+              // print(index);
+              handlerPageChanged(index);
+            },
+            itemBuilder: (BuildContext context, int index) {
+              return _buildItem(
+                context,
+                index,
+                widget.errorMsg,
+                _infoWidgetMap[index],
+              );
+            },
+            physics: _locked
+                ? const NeverScrollableScrollPhysics()
+                : ClampingScrollPhysics(),
+          ),
         ),
       ),
     );
@@ -120,6 +130,9 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
     return ClipRect(
       child: ImageView(
         url: widget.imageUrls[index],
+        originalUrl: widget.imageOriginalUrls == null
+            ? null
+            : widget.imageOriginalUrls[index],
         heroTag: widget.heroTags != null
             ? widget.heroTags[index]
             : widget.imageUrls[index],
