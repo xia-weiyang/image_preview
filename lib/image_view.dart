@@ -112,7 +112,7 @@ class _ImageViewState extends State<ImageView> {
     return GestureDetector(
       onLongPress: () {
         if (widget.onLongPressHandler != null)
-          widget.onLongPressHandler(context, widget.url);
+          widget.onLongPressHandler(context, widget.originalUrl ?? widget.url);
       },
       child: PhotoView(
         imageProvider: imageProvide,
