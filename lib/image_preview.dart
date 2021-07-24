@@ -7,7 +7,7 @@ import 'package:image_preview/image_view.dart';
 
 /// 打开单张图片
 void openImagePage(
-  BuildContext context, {
+  NavigatorState navigatorState, {
   String imgUrl,
   String imgOriginalUrl,
   String heroTag,
@@ -15,8 +15,7 @@ void openImagePage(
   OnLongPressHandler onLongPressHandler,
   OnPageChanged onPageChanged,
 }) {
-  Navigator.push(context,
-      MaterialPageRoute<void>(builder: (BuildContext context) {
+  navigatorState.push(MaterialPageRoute<void>(builder: (BuildContext context) {
     return ImageGalleryPage(
       imageUrls: [imgUrl],
       imageOriginalUrls: [imgOriginalUrl],
@@ -34,7 +33,7 @@ void openImagePage(
 /// 返回的[Widget]可用于展示图片描述信息，如不需要可返回null
 /// [imgOriginalUrls] 原图 会最终加载此图
 void openImagesPage(
-  BuildContext context, {
+  NavigatorState navigatorState, {
   @required List<String> imgUrls,
   List<String> imgOriginalUrls,
   List<String> heroTags,
@@ -43,8 +42,7 @@ void openImagesPage(
   OnLongPressHandler onLongPressHandler,
   OnPageChanged onPageChanged,
 }) {
-  Navigator.push(context,
-      MaterialPageRoute<void>(builder: (BuildContext context) {
+  navigatorState.push(MaterialPageRoute<void>(builder: (BuildContext context) {
     return ImageGalleryPage(
       imageUrls: imgUrls,
       imageOriginalUrls: imgOriginalUrls,
