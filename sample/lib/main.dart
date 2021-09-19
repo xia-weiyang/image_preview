@@ -97,7 +97,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   imageUrl: url,
                 ),
                 onTap: () {
-                  openImagesPage(context,
+                  openImagesPage(Navigator.of(context),
                       imgUrls: _imageUrls,
                       imgOriginalUrls: _imageOriginalUrls,
                       index: i,
