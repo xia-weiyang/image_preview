@@ -8,18 +8,18 @@ import 'package:image_preview/image_view.dart';
 /// 打开单张图片
 void openImagePage(
   NavigatorState navigatorState, {
-  String imgUrl,
-  String imgOriginalUrl,
-  String heroTag,
-  String errorMsg,
-  OnLongPressHandler onLongPressHandler,
-  OnPageChanged onPageChanged,
+  required String imgUrl,
+  String? imgOriginalUrl,
+  String? heroTag,
+  String? errorMsg,
+  OnLongPressHandler? onLongPressHandler,
+  OnPageChanged? onPageChanged,
 }) {
   navigatorState.push(MaterialPageRoute<void>(builder: (BuildContext context) {
     return ImageGalleryPage(
       imageUrls: [imgUrl],
-      imageOriginalUrls: [imgOriginalUrl],
-      heroTags: [heroTag],
+      imageOriginalUrls: imgOriginalUrl == null ? null : [imgOriginalUrl],
+      heroTags: heroTag == null ? null : [heroTag],
       errorMsg: errorMsg,
       onLongPressHandler: onLongPressHandler,
       onPageChanged: onPageChanged,
@@ -34,13 +34,13 @@ void openImagePage(
 /// [imgOriginalUrls] 原图 会最终加载此图
 void openImagesPage(
   NavigatorState navigatorState, {
-  @required List<String> imgUrls,
-  List<String> imgOriginalUrls,
-  List<String> heroTags,
+  required List<String> imgUrls,
+  List<String>? imgOriginalUrls,
+  List<String>? heroTags,
   int index = 0,
-  String errorMsg,
-  OnLongPressHandler onLongPressHandler,
-  OnPageChanged onPageChanged,
+  String? errorMsg,
+  OnLongPressHandler? onLongPressHandler,
+  OnPageChanged? onPageChanged,
 }) {
   navigatorState.push(MaterialPageRoute<void>(builder: (BuildContext context) {
     return ImageGalleryPage(

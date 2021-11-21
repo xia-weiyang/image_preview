@@ -9,10 +9,10 @@ typedef OnLongPressHandler(BuildContext context, String ingUrl);
 
 class ImageView extends StatefulWidget {
   const ImageView({
-    Key key,
-    @required this.url,
+    Key? key,
+    required this.url,
     this.originalUrl,
-    this.heroTag,
+    required this.heroTag,
     this.scaleStateChangedCallback,
     this.onLongPressHandler,
     this.errorMsg,
@@ -24,18 +24,18 @@ class ImageView extends StatefulWidget {
 
   final String url;
 
-  final String originalUrl;
+  final String? originalUrl;
 
   final String heroTag;
 
-  final String errorMsg;
+  final String? errorMsg;
 
-  final ValueChanged<PhotoViewScaleState> scaleStateChangedCallback;
+  final ValueChanged<PhotoViewScaleState>? scaleStateChangedCallback;
 
-  final OnLongPressHandler onLongPressHandler;
+  final OnLongPressHandler? onLongPressHandler;
 
   /// 可用于描述图片
-  final Widget infoWidget;
+  final Widget? infoWidget;
 }
 
 class _ImageViewState extends State<ImageView> {
@@ -46,8 +46,9 @@ class _ImageViewState extends State<ImageView> {
   @override
   Widget build(BuildContext context) {
     var imgUrl = widget.url;
-    if (widget.originalUrl != null && widget.originalUrl.isNotEmpty)
-      imgUrl = widget.originalUrl;
+    if (widget.originalUrl != null && widget.originalUrl!.isNotEmpty) {
+      imgUrl = widget.originalUrl!;
+    }
     final widgets = <Widget>[];
     widgets.add(widget.url.startsWith('http')
         ? CachedNetworkImage(
@@ -111,8 +112,9 @@ class _ImageViewState extends State<ImageView> {
   Widget _buildImageWidget(ImageProvider imageProvide) {
     return GestureDetector(
       onLongPress: () {
-        if (widget.onLongPressHandler != null)
-          widget.onLongPressHandler(context, widget.originalUrl ?? widget.url);
+        if (widget.onLongPressHandler != null) {
+          widget.onLongPressHandler!(context, widget.originalUrl ?? widget.url);
+        }
       },
       child: PhotoView(
         imageProvider: imageProvide,
@@ -126,13 +128,13 @@ class _ImageViewState extends State<ImageView> {
 }
 
 class ImageLoading extends StatelessWidget {
-  final String url;
+  final String? url;
   final String tag;
 
   const ImageLoading({
-    Key key,
+    Key? key,
     this.url,
-    this.tag,
+    required this.tag,
   }) : super(key: key);
 
   @override
@@ -151,7 +153,7 @@ class ImageLoading extends StatelessWidget {
               Center(
                 child: Hero(
                   child: CachedNetworkImage(
-                    imageUrl: url,
+                    imageUrl: url!,
                   ),
                   tag: tag,
                 ),
@@ -163,11 +165,11 @@ class ImageLoading extends StatelessWidget {
 }
 
 class ImageError extends StatelessWidget {
-  final String describe;
-  final String msg;
+  final String? describe;
+  final String? msg;
 
   const ImageError({
-    Key key,
+    Key? key,
     this.msg,
     this.describe,
   }) : super(key: key);

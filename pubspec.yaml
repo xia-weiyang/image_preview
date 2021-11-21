@@ -1,11 +1,10 @@
 name: image_preview
-description: A new Flutter package project.
+description: Preview pictures and support left and right sliding switch.
 version: 0.0.1
-author: xia-weiyang
-homepage:
+homepage: https://github.com/xia-weiyang/image_preview
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   flutter:
