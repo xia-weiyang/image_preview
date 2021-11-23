@@ -54,3 +54,7 @@ void openImagesPage(
     );
   }));
 }
+
+/// 图片加载变化
+/// [infoWidget] 当为null时 此图片对应的没有图片描述信息
+typedef Future<Widget?> OnPageChanged(int index, Widget? infoWidget);

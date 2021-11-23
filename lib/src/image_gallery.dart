@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:image_preview/image_preview.dart';
 import 'package:image_preview/src/image_view.dart';
 import 'package:photo_view/photo_view.dart';
-
-/// 图片加载变化
-/// [infoWidget] 当为null时 此图片对应的没有图片描述信息
-typedef Future<Widget?> OnPageChanged(int index, Widget? infoWidget);
 
 class ImageGalleryPage extends StatefulWidget {
   ImageGalleryPage({
