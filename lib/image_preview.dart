@@ -1,6 +1,5 @@
 library image_preview;
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_preview/src/image_gallery.dart';
 import 'package:image_preview/src/image_view.dart';
