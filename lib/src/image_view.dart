@@ -53,6 +53,9 @@ class _ImageViewState extends State<ImageView> {
     widgets.add(widget.url.startsWith('http')
         ? CachedNetworkImage(
             imageUrl: imgUrl,
+            fadeInDuration: Duration(milliseconds: 200),
+            fadeOutDuration: Duration(milliseconds: 200),
+            placeholderFadeInDuration: Duration(milliseconds: 200),
             placeholder: (context, str) => ImageLoading(
               url: widget.url == widget.originalUrl ? null : widget.url,
               tag: widget.heroTag,
