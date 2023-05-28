@@ -3,6 +3,7 @@ library image_preview;
 import 'package:flutter/material.dart';
 import 'package:image_preview/src/image_gallery.dart';
 import 'package:image_preview/src/image_view.dart';
+import 'package:image_preview/src/page_route.dart';
 
 /// 打开单张图片
 void openImagePage(
@@ -14,7 +15,7 @@ void openImagePage(
   OnLongPressHandler? onLongPressHandler,
   OnPageChanged? onPageChanged,
 }) {
-  navigatorState.push(MaterialPageRoute<void>(builder: (BuildContext context) {
+  navigatorState.push(NoAnimPageRoute<void>(builder: (BuildContext context) {
     return ImageGalleryPage(
       imageUrls: [imgUrl],
       imageOriginalUrls: imgOriginalUrl == null ? null : [imgOriginalUrl],
@@ -41,7 +42,7 @@ void openImagesPage(
   OnLongPressHandler? onLongPressHandler,
   OnPageChanged? onPageChanged,
 }) {
-  navigatorState.push(MaterialPageRoute<void>(builder: (BuildContext context) {
+  navigatorState.push(NoAnimPageRoute<void>(builder: (BuildContext context) {
     return ImageGalleryPage(
       imageUrls: imgUrls,
       imageOriginalUrls: imgOriginalUrls,
