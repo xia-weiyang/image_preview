@@ -15,7 +15,7 @@ void openImagePage(
   OnLongPressHandler? onLongPressHandler,
   OnPageChanged? onPageChanged,
 }) {
-  navigatorState.push(NoAnimPageRoute<void>(builder: (BuildContext context) {
+  navigatorState.push(FadePageRoute<void>(builder: (BuildContext context) {
     return ImageGalleryPage(
       imageUrls: [imgUrl],
       imageOriginalUrls: imgOriginalUrl == null ? null : [imgOriginalUrl],
@@ -42,7 +42,7 @@ void openImagesPage(
   OnLongPressHandler? onLongPressHandler,
   OnPageChanged? onPageChanged,
 }) {
-  navigatorState.push(NoAnimPageRoute<void>(builder: (BuildContext context) {
+  navigatorState.push(FadePageRoute<void>(builder: (BuildContext context) {
     return ImageGalleryPage(
       imageUrls: imgUrls,
       imageOriginalUrls: imgOriginalUrls,

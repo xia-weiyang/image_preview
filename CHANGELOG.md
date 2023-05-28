@@ -1,3 +1,5 @@
+## 1.0.4
+* Improve page route anim.
 ## 1.0.3
 * Improve page route anim.
 ## 1.0.2
