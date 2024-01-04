@@ -9,6 +9,12 @@ class FadePageRoute<T> extends MaterialPageRoute<T> {
     return const FadePageTransitionsBuilder()
         .buildTransitions(this, context, animation, secondaryAnimation, child);
   }
+
+  @override
+  bool canTransitionFrom(TransitionRoute previousRoute) {
+    return false;
+  }
+
 }
 
 class FadePageTransitionsBuilder extends PageTransitionsBuilder {
