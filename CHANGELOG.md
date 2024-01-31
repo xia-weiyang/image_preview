@@ -1,3 +1,5 @@
+## 1.0.6
+* Fix transition animation.
 ## 1.0.5
 * Fix transition animation.
 ## 1.0.4
