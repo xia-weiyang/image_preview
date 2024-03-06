@@ -5,7 +5,7 @@ import 'package:image_preview/image_preview.dart';
 void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   // This widget is the root of your application.
   @override
@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  const MyHomePage({super.key, required this.title});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -44,10 +44,10 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  MyHomePageState createState() => MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class MyHomePageState extends State<MyHomePage> {
   final _imageUrls = <String>[
     'https://xia-weiyang.github.io/image/2.jpg',
     'https://xia-weiyang.github.io/image/1_thumbnail.jpg',
@@ -94,6 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: _imageUrls.map<Widget>((url) {
             final i = _imageUrls.indexOf(url);
             return Hero(
+              tag: url,
               child: GestureDetector(
                 child: CachedNetworkImage(
                   imageUrl: url,
@@ -119,7 +120,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       });
                 },
               ),
-              tag: url,
             );
           }).toList(),
         ),
