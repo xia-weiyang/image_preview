@@ -1,33 +1,30 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:image_preview/preview_data.dart';
+import 'package:image_preview/src/file_download.dart';
 import 'package:photo_view/photo_view.dart';
 
-typedef OnLongPressHandler(BuildContext context, String ingUrl);
+typedef OnLongPressHandler(BuildContext context, PreviewData data);
 
 class ImageView extends StatefulWidget {
   const ImageView({
     Key? key,
-    required this.url,
-    this.originalUrl,
+    required this.data,
     required this.heroTag,
     this.scaleStateChangedCallback,
     this.onLongPressHandler,
-    this.errorMsg,
     this.infoWidget,
   }) : super(key: key);
 
   @override
   _ImageViewState createState() => _ImageViewState();
 
-  final String url;
-
-  final String? originalUrl;
+  final ImageData data;
 
   final String heroTag;
-
-  final String? errorMsg;
 
   final ValueChanged<PhotoViewScaleState>? scaleStateChangedCallback;
 
@@ -43,33 +40,19 @@ class _ImageViewState extends State<ImageView> {
   final _minHeight = 20.0;
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    var imgUrl = widget.url;
-    if (widget.originalUrl != null && widget.originalUrl!.isNotEmpty) {
-      imgUrl = widget.originalUrl!;
-    }
     final widgets = <Widget>[];
-    widgets.add(widget.url.startsWith('http')
-        ? CachedNetworkImage(
-            imageUrl: imgUrl,
-            fadeInDuration: Duration(milliseconds: 200),
-            fadeOutDuration: Duration(milliseconds: 200),
-            placeholderFadeInDuration: Duration(milliseconds: 0),
-            placeholder: (context, str) => ImageLoading(
-              url: widget.url == widget.originalUrl ? null : widget.url,
-              tag: widget.heroTag,
-            ),
-            errorWidget: (context, str, e) {
-              return ImageError(
-                msg: widget.errorMsg,
-                describe: '$str \n $e',
-              );
-            },
-            imageBuilder: (context, provider) {
-              return _buildImageWidget(provider);
-            },
-          )
-        : _buildImageWidget(FileImage(File.fromUri(Uri.file(imgUrl)))));
+    widgets.add(ImagePreview(
+      data: widget.data,
+      heroTag: widget.heroTag,
+      onLongPressHandler: widget.onLongPressHandler,
+      scaleStateChangedCallback: widget.scaleStateChangedCallback,
+    ));
     if (widget.infoWidget != null) {
       widgets.add(Align(
         alignment: Alignment.bottomCenter,
@@ -110,12 +93,85 @@ class _ImageViewState extends State<ImageView> {
     // debugPrint(temp.toString());
     setState(() => _currentHeight = temp);
   }
+}
+
+class ImagePreview extends StatefulWidget {
+  const ImagePreview({
+    super.key,
+    required this.data,
+    required this.heroTag,
+    this.onLongPressHandler,
+    this.scaleStateChangedCallback,
+  });
+
+  final ImageData data;
+  final String heroTag;
+  final OnLongPressHandler? onLongPressHandler;
+  final ValueChanged<PhotoViewScaleState>? scaleStateChangedCallback;
+
+  @override
+  State<StatefulWidget> createState() => _ImagePreviewState();
+}
+
+class _ImagePreviewState extends State<ImagePreview> {
+  FileDownloader? fileDownloader;
+  Future<String>? downloadFuture;
+
+  @override
+  void dispose() {
+    fileDownloader?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // 如果是web环境，直接加载网络图片
+    if (kIsWeb) {
+      if (widget.data.url == null || widget.data.url!.isEmpty) {
+        return ImageError(
+          msg: '加载图片失败',
+          describe: '地址为空',
+        );
+      }
+      return _buildImageWidget(NetworkImage(widget.data.url!));
+    }
+
+    return _existFile()
+        ? _buildImageWidget(
+            FileImage(File.fromUri(Uri.file(widget.data.path!))))
+        : FutureBuilder(
+            future: getDownloadFuture(),
+            builder: (_, snapshot) {
+              if (snapshot.hasData) {
+                if ('success' == snapshot.data) {
+                  return _buildImageWidget(
+                      FileImage(File.fromUri(Uri.file(widget.data.path!))));
+                } else {
+                  return ImageError(
+                    msg: '加载图片失败',
+                    describe: '${widget.data.url}\n${snapshot.data}',
+                  );
+                }
+              } else {
+                return ImageLoading(
+                  tag: widget.heroTag,
+                  path:
+                      _existThumbnailFile() ? widget.data.thumbnailPath : null,
+                );
+              }
+            });
+  }
 
   Widget _buildImageWidget(ImageProvider imageProvide) {
     return GestureDetector(
       onLongPress: () {
         if (widget.onLongPressHandler != null) {
-          widget.onLongPressHandler!(context, widget.originalUrl ?? widget.url);
+          widget.onLongPressHandler!(
+              context,
+              PreviewData(
+                type: Type.image,
+                image: widget.data,
+              ));
         }
       },
       child: PhotoView(
@@ -124,18 +180,56 @@ class _ImageViewState extends State<ImageView> {
         scaleStateChangedCallback: widget.scaleStateChangedCallback,
         minScale: PhotoViewComputedScale.contained * 1.0,
         maxScale: PhotoViewComputedScale.covered * 3.0,
+        errorBuilder: (_, msg, stack) {
+          print('PhotoView error: $msg \n $stack');
+          return ImageError(
+            msg: '加载图片失败',
+            describe: '${widget.data.url}\n${msg}',
+          );
+        },
       ),
     );
+  }
+
+  /// 检查path是否存在缓存文件
+  bool _existFile() {
+    if (widget.data.path == null) return false;
+    final file = File(widget.data.path!);
+    bool result = file.existsSync();
+    return result;
+  }
+
+  /// 检查缩略图是否存在缓存文件
+  bool _existThumbnailFile() {
+    if (widget.data.thumbnailPath == null) return false;
+    final file = File(widget.data.thumbnailPath!);
+    return file.existsSync();
+  }
+
+  Future<String> getDownloadFuture() {
+    if (downloadFuture == null) {
+      downloadFuture = _downloadFile();
+    }
+    return downloadFuture!;
+  }
+
+  Future<String> _downloadFile() async {
+    if (widget.data.path == null || widget.data.path!.isEmpty)
+      return "No download path specified.";
+    if (widget.data.url == null || widget.data.url!.isEmpty)
+      return "No download url specified.";
+    fileDownloader ??= FileDownloader();
+    return await fileDownloader!.download(widget.data.url!, widget.data.path!);
   }
 }
 
 class ImageLoading extends StatelessWidget {
-  final String? url;
+  final String? path;
   final String tag;
 
   const ImageLoading({
     Key? key,
-    this.url,
+    this.path,
     required this.tag,
   }) : super(key: key);
 
@@ -148,14 +242,15 @@ class ImageLoading extends StatelessWidget {
       ),
     ));
 
-    return url == null
+    return path == null || path!.isEmpty
         ? widget
         : Stack(
             children: <Widget>[
               Center(
                 child: Hero(
-                  child: CachedNetworkImage(
-                    imageUrl: url!,
+                  child: Image(
+                    image: FileImage(File.fromUri(Uri.file(path!))),
+                    fit: BoxFit.contain,
                   ),
                   tag: tag,
                 ),

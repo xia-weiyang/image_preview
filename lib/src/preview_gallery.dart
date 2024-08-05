@@ -1,38 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:image_preview/image_preview.dart';
+import 'package:image_preview/preview.dart';
+import 'package:image_preview/preview_data.dart';
 import 'package:image_preview/src/image_view.dart';
 import 'package:photo_view/photo_view.dart';
 
 class ImageGalleryPage extends StatefulWidget {
   ImageGalleryPage({
     Key? key,
+    required this.data,
     this.initialIndex = 0,
-    required this.imageUrls,
-    this.imageOriginalUrls,
     this.onLongPressHandler,
-    this.heroTags,
-    this.errorMsg,
     this.onPageChanged,
-  }) : super(key: key) {
-    assert(initialIndex >= 0 && initialIndex < imageUrls.length);
-    assert(imageOriginalUrls == null || imageOriginalUrls?.length == imageUrls.length);
-    assert(heroTags == null || heroTags?.length == imageUrls.length);
-  }
+  }) : super(key: key) {}
 
   @override
   _ImageGalleryPageState createState() => _ImageGalleryPageState();
 
   final int initialIndex;
 
-  final List<String> imageUrls;
-
-  final List<String>? imageOriginalUrls;
-
-  final List<String>? heroTags;
+  final List<PreviewData> data;
 
   final OnLongPressHandler? onLongPressHandler;
-
-  final String? errorMsg;
 
   ///第一次打开图片也会被执行
   final OnPageChanged? onPageChanged;
@@ -67,7 +55,7 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
   }
 
   int get itemCount {
-    return widget.imageUrls.length;
+    return widget.data.length;
   }
 
   @override
@@ -96,7 +84,6 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
               return _buildItem(
                 context,
                 index,
-                widget.errorMsg,
                 _infoWidgetMap[index],
               );
             },
@@ -112,30 +99,28 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
   void handlerPageChanged(int index) async {
     if (widget.onPageChanged == null) return;
     var tempWidget = await widget.onPageChanged!(index, _infoWidgetMap[index]);
-    if(tempWidget == null) return;
+    if (tempWidget == null) return;
     if (mounted) setState(() => _infoWidgetMap[index] = tempWidget);
   }
 
   Widget _buildItem(
     BuildContext context,
     int index,
-    String? errorMsg,
     Widget? infoWidget,
   ) {
-    return ClipRect(
-      child: ImageView(
-        url: widget.imageUrls[index],
-        originalUrl: widget.imageOriginalUrls == null
-            ? null
-            : widget.imageOriginalUrls![index],
-        heroTag: widget.heroTags != null
-            ? widget.heroTags![index]
-            : widget.imageUrls[index],
-        scaleStateChangedCallback: scaleStateChangedCallback,
-        onLongPressHandler: widget.onLongPressHandler,
-        errorMsg: errorMsg,
-        infoWidget: infoWidget,
-      ),
-    );
+    final preview = widget.data[index];
+    if (preview.type == Type.image) {
+      return ClipRect(
+        child: ImageView(
+          data: preview.image!,
+          heroTag: preview.heroTag ?? '',
+          scaleStateChangedCallback: scaleStateChangedCallback,
+          onLongPressHandler: widget.onLongPressHandler,
+          infoWidget: infoWidget,
+        ),
+      );
+    } else {
+      return SizedBox();
+    }
   }
 }

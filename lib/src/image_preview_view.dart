@@ -1,0 +1,124 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:image_preview/preview_data.dart';
+import 'package:image_preview/src/file_download.dart';
+
+class ImagePreviewThumbnailView extends StatefulWidget {
+  const ImagePreviewThumbnailView({
+    super.key,
+    required this.data,
+  });
+
+  final ImageData data;
+
+  @override
+  State<StatefulWidget> createState() => _ImagePreviewThumbnailViewState();
+}
+
+class _ImagePreviewThumbnailViewState extends State<ImagePreviewThumbnailView> {
+  FileDownloader? fileDownloader;
+  Future<String>? downloadFuture;
+
+  @override
+  void dispose() {
+    fileDownloader?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (kIsWeb) {
+      if (widget.data.thumbnailUrl == null ||
+          widget.data.thumbnailUrl!.isEmpty) {
+        return buildError();
+      }
+      return Image(
+        image: NetworkImage(widget.data.thumbnailUrl ?? ''),
+        loadingBuilder: (con, widget, progress) {
+          return buildPlaceholder();
+        },
+        errorBuilder: (con, error, stack) {
+          return buildError();
+        },
+        fit: BoxFit.contain,
+      );
+    }
+
+    return _existFile()
+        ? Image(
+            image:
+                FileImage(File.fromUri(Uri.file(widget.data.thumbnailPath!))),
+            fit: BoxFit.cover,
+          )
+        : FutureBuilder(
+            future: getDownloadFuture(),
+            builder: (_, snapshot) {
+              if (snapshot.hasData) {
+                if ('success' == snapshot.data) {
+                  return Image(
+                    image: FileImage(
+                        File.fromUri(Uri.file(widget.data.thumbnailPath!))),
+                    fit: BoxFit.cover,
+                  );
+                } else {
+                  return buildError();
+                }
+              }
+              return buildPlaceholder();
+            });
+  }
+
+  /// 检查是否存在缓存文件
+  bool _existFile() {
+    if (widget.data.thumbnailPath == null) return false;
+    final file = File(widget.data.thumbnailPath!);
+    bool result = file.existsSync();
+    return result;
+  }
+
+  Widget buildPlaceholder() {
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      color: Theme.of(context).brightness == Brightness.dark
+          ? Colors.black12
+          : const Color(0xFFF0F0F0),
+    );
+  }
+
+  Widget buildError() {
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      color: Theme.of(context).brightness == Brightness.dark
+          ? Colors.black12
+          : const Color(0xFFF0F0F0),
+      child: const Center(
+        child: Icon(
+          Icons.broken_image,
+          color: Color(0xFFe0e0e0),
+          size: 40,
+        ),
+      ),
+    );
+  }
+
+  Future<String> getDownloadFuture() {
+    if (downloadFuture == null) {
+      downloadFuture = _downloadFile();
+    }
+    return downloadFuture!;
+  }
+
+  Future<String> _downloadFile() async {
+    if (widget.data.thumbnailPath == null || widget.data.thumbnailPath!.isEmpty)
+      return "No download path specified.";
+    if (widget.data.thumbnailUrl == null || widget.data.thumbnailUrl!.isEmpty)
+      return "No download url specified.";
+    fileDownloader ??= FileDownloader();
+    return await fileDownloader!
+        .download(widget.data.thumbnailUrl!, widget.data.thumbnailPath!);
+  }
+}
