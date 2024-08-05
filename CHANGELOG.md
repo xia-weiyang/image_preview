@@ -1,5 +1,9 @@
 ## 1.1.0
 * Rebuild core code.
+## 1.0.7
+* Upgrade dependencies.
+## 1.0.6
+* Fix transition animation.
 ## 1.0.5
 * Fix transition animation.
 ## 1.0.4
