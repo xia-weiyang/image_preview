@@ -37,8 +37,6 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
     _controller = PageController(initialPage: widget.initialIndex);
     _locked = false;
     super.initState();
-
-    handlerPageChanged(widget.initialIndex);
   }
 
   void scaleStateChangedCallback(PhotoViewScaleState scaleState) {

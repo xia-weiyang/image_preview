@@ -133,12 +133,21 @@ class _ImagePreviewState extends State<ImagePreview> {
           describe: '地址为空',
         );
       }
-      return _buildImageWidget(NetworkImage(widget.data.url!));
+      return _buildImageWidget(
+        NetworkImage(widget.data.url!),
+        widget.data.thumbnailUrl == null
+            ? null
+            : NetworkImage(widget.data.thumbnailUrl!),
+      );
     }
 
     return _existFile()
         ? _buildImageWidget(
-            FileImage(File.fromUri(Uri.file(widget.data.path!))))
+            FileImage(File.fromUri(Uri.file(widget.data.path!))),
+            _existThumbnailFile()
+                ? FileImage(File.fromUri(Uri.file(widget.data.thumbnailPath!)))
+                : null,
+          )
         : FutureBuilder(
             future: getDownloadFuture(),
             builder: (_, snapshot) {
@@ -162,7 +171,8 @@ class _ImagePreviewState extends State<ImagePreview> {
             });
   }
 
-  Widget _buildImageWidget(ImageProvider imageProvide) {
+  Widget _buildImageWidget(ImageProvider imageProvide,
+      [ImageProvider? loadImageProvide]) {
     return GestureDetector(
       onLongPress: () {
         if (widget.onLongPressHandler != null) {
@@ -176,6 +186,14 @@ class _ImagePreviewState extends State<ImagePreview> {
       },
       child: PhotoView(
         imageProvider: imageProvide,
+        loadingBuilder: loadImageProvide == null
+            ? null
+            : (_, event) {
+                return Hero(
+                  tag: widget.heroTag,
+                  child: Center(child: Image(image: loadImageProvide)),
+                );
+              },
         heroAttributes: PhotoViewHeroAttributes(tag: widget.heroTag),
         scaleStateChangedCallback: widget.scaleStateChangedCallback,
         minScale: PhotoViewComputedScale.contained * 1.0,

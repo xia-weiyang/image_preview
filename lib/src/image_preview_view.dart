@@ -34,15 +34,14 @@ class _ImagePreviewThumbnailViewState extends State<ImagePreviewThumbnailView> {
           widget.data.thumbnailUrl!.isEmpty) {
         return buildError();
       }
-      return Image(
-        image: NetworkImage(widget.data.thumbnailUrl ?? ''),
-        loadingBuilder: (con, widget, progress) {
-          return buildPlaceholder();
-        },
-        errorBuilder: (con, error, stack) {
-          return buildError();
-        },
-        fit: BoxFit.contain,
+      return buildPlaceholder(
+        child: Image(
+          image: NetworkImage(widget.data.thumbnailUrl ?? ''),
+          errorBuilder: (con, error, stack) {
+            return buildError();
+          },
+          fit: BoxFit.cover,
+        ),
       );
     }
 
@@ -78,13 +77,14 @@ class _ImagePreviewThumbnailViewState extends State<ImagePreviewThumbnailView> {
     return result;
   }
 
-  Widget buildPlaceholder() {
+  Widget buildPlaceholder({Widget? child}) {
     return Container(
       width: double.infinity,
       height: double.infinity,
       color: Theme.of(context).brightness == Brightness.dark
           ? Colors.black12
           : const Color(0xFFF0F0F0),
+      child: child,
     );
   }
 

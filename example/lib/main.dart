@@ -66,8 +66,8 @@ class _MyHomePageState extends State<MyHomePage> {
           image: ImageData(
             url: 'https://xia-weiyang.github.io/image/3.jpg',
             path: '$path/image/3.jpg',
-            thumbnailUrl: 'https://xia-weiyang.github.io/image/3.jpg',
-            thumbnailPath: '$path/image/3.jpg',
+            thumbnailUrl: 'https://xia-weiyang.github.io/image/1_thumbnail.jpg',
+            thumbnailPath: '$path/image/1_thumbnail.jpg',
           ),
         ),
       ];
@@ -94,9 +94,10 @@ class _MyHomePageState extends State<MyHomePage> {
               child: PreviewThumbnail(
                 data: dataList[i],
                 onTap: () {
-                  openPreviewPage(
+                  openPreviewPages(
                     Navigator.of(context),
-                    data: preview,
+                    data: dataList,
+                    index: i,
                     onLongPressHandler: (con, url) =>
                         debugPrint(preview.image?.url),
                     onPageChanged: (i, widget) async {
