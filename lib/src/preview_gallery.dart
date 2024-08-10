@@ -29,6 +29,7 @@ class ImageGalleryPage extends StatefulWidget {
 class _ImageGalleryPageState extends State<ImageGalleryPage> {
   late PageController _controller;
   late bool _locked;
+  var firstOpen = true;
 
   final _infoWidgetMap = Map<int, Widget>();
 
@@ -79,11 +80,13 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
               handlerPageChanged(index);
             },
             itemBuilder: (BuildContext context, int index) {
-              return _buildItem(
+              final widget = _buildItem(
                 context,
                 index,
                 _infoWidgetMap[index],
               );
+              firstOpen = false;
+              return widget;
             },
             physics: _locked
                 ? const NeverScrollableScrollPhysics()
@@ -112,6 +115,7 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
         child: ImageView(
           data: preview.image!,
           heroTag: preview.heroTag ?? '',
+          open: firstOpen && index == widget.initialIndex,
           scaleStateChangedCallback: scaleStateChangedCallback,
           onLongPressHandler: widget.onLongPressHandler,
           infoWidget: infoWidget,

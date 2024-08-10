@@ -11,11 +11,15 @@ class PreviewThumbnail extends StatefulWidget {
   const PreviewThumbnail({
     super.key,
     required this.data,
+    this.fit = BoxFit.cover,
     this.onTap,
+    this.onLongTap,
   });
 
   final PreviewData data;
+  final BoxFit fit;
   final VoidCallback? onTap;
+  final VoidCallback? onLongTap;
 
   @override
   State<StatefulWidget> createState() => PreviewThumbnailState();
@@ -27,12 +31,16 @@ class PreviewThumbnailState extends State<PreviewThumbnail> {
     Widget child;
 
     if (widget.data.type == Type.image) {
-      child = ImagePreviewThumbnailView(data: widget.data.image!);
+      child = ImagePreviewThumbnailView(
+        data: widget.data.image!,
+        fit: widget.fit,
+      );
     } else {
       child = Container();
     }
     return GestureDetector(
       onTap: widget.onTap,
+      onLongPress: widget.onLongTap,
       child: Hero(
         tag: widget.data.heroTag ?? '',
         child: child,

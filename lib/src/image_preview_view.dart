@@ -9,9 +9,11 @@ class ImagePreviewThumbnailView extends StatefulWidget {
   const ImagePreviewThumbnailView({
     super.key,
     required this.data,
+    required this.fit,
   });
 
   final ImageData data;
+  final BoxFit fit;
 
   @override
   State<StatefulWidget> createState() => _ImagePreviewThumbnailViewState();
@@ -40,7 +42,7 @@ class _ImagePreviewThumbnailViewState extends State<ImagePreviewThumbnailView> {
           errorBuilder: (con, error, stack) {
             return buildError();
           },
-          fit: BoxFit.cover,
+          fit: widget.fit,
         ),
       );
     }
@@ -49,7 +51,7 @@ class _ImagePreviewThumbnailViewState extends State<ImagePreviewThumbnailView> {
         ? Image(
             image:
                 FileImage(File.fromUri(Uri.file(widget.data.thumbnailPath!))),
-            fit: BoxFit.cover,
+            fit: widget.fit,
           )
         : FutureBuilder(
             future: getDownloadFuture(),
@@ -59,7 +61,7 @@ class _ImagePreviewThumbnailViewState extends State<ImagePreviewThumbnailView> {
                   return Image(
                     image: FileImage(
                         File.fromUri(Uri.file(widget.data.thumbnailPath!))),
-                    fit: BoxFit.cover,
+                    fit: widget.fit,
                   );
                 } else {
                   return buildError();
@@ -78,31 +80,35 @@ class _ImagePreviewThumbnailViewState extends State<ImagePreviewThumbnailView> {
   }
 
   Widget buildPlaceholder({Widget? child}) {
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      color: Theme.of(context).brightness == Brightness.dark
-          ? Colors.black12
-          : const Color(0xFFF0F0F0),
-      child: child,
-    );
+    return LayoutBuilder(builder: (context, cons) {
+      return Container(
+        width: cons.maxWidth == double.infinity ? 200 : cons.maxWidth,
+        height: cons.maxHeight == double.infinity ? 200 : cons.maxHeight,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Colors.black12
+            : const Color(0xFFF0F0F0),
+        child: child,
+      );
+    });
   }
 
   Widget buildError() {
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      color: Theme.of(context).brightness == Brightness.dark
-          ? Colors.black12
-          : const Color(0xFFF0F0F0),
-      child: const Center(
-        child: Icon(
-          Icons.broken_image,
-          color: Color(0xFFe0e0e0),
-          size: 40,
+    return LayoutBuilder(builder: (context, cons) {
+      return Container(
+        width: cons.maxWidth == double.infinity ? 200 : cons.maxWidth,
+        height: cons.maxHeight == double.infinity ? 200 : cons.maxHeight,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Colors.black12
+            : const Color(0xFFF0F0F0),
+        child: const Center(
+          child: Icon(
+            Icons.broken_image,
+            color: Color(0xFFe0e0e0),
+            size: 40,
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Future<String> getDownloadFuture() {

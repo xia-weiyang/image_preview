@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_preview/preview_data.dart';
@@ -14,6 +15,7 @@ class ImageView extends StatefulWidget {
     Key? key,
     required this.data,
     required this.heroTag,
+    required this.open,
     this.scaleStateChangedCallback,
     this.onLongPressHandler,
     this.infoWidget,
@@ -25,6 +27,8 @@ class ImageView extends StatefulWidget {
   final ImageData data;
 
   final String heroTag;
+
+  final bool open;
 
   final ValueChanged<PhotoViewScaleState>? scaleStateChangedCallback;
 
@@ -50,6 +54,7 @@ class _ImageViewState extends State<ImageView> {
     widgets.add(ImagePreview(
       data: widget.data,
       heroTag: widget.heroTag,
+      open: widget.open,
       onLongPressHandler: widget.onLongPressHandler,
       scaleStateChangedCallback: widget.scaleStateChangedCallback,
     ));
@@ -100,12 +105,14 @@ class ImagePreview extends StatefulWidget {
     super.key,
     required this.data,
     required this.heroTag,
+    required this.open,
     this.onLongPressHandler,
     this.scaleStateChangedCallback,
   });
 
   final ImageData data;
   final String heroTag;
+  final bool open;
   final OnLongPressHandler? onLongPressHandler;
   final ValueChanged<PhotoViewScaleState>? scaleStateChangedCallback;
 
@@ -127,34 +134,33 @@ class _ImagePreviewState extends State<ImagePreview> {
   Widget build(BuildContext context) {
     // 如果是web环境，直接加载网络图片
     if (kIsWeb) {
-      if (widget.data.url == null || widget.data.url!.isEmpty) {
-        return ImageError(
-          msg: '加载图片失败',
-          describe: '地址为空',
-        );
-      }
-      return _buildImageWidget(
-        NetworkImage(widget.data.url!),
-        widget.data.thumbnailUrl == null
-            ? null
-            : NetworkImage(widget.data.thumbnailUrl!),
-      );
+      return _buildWeb();
     }
 
     return _existFile()
-        ? _buildImageWidget(
-            FileImage(File.fromUri(Uri.file(widget.data.path!))),
-            _existThumbnailFile()
-                ? FileImage(File.fromUri(Uri.file(widget.data.thumbnailPath!)))
-                : null,
-          )
+        ? widget.open
+            ? FutureBuilder(
+                future: Future.delayed(Duration(milliseconds: 500)),
+                builder: (_, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    return _buildImageWidgetPre();
+                  }
+                  return ImageLoading(
+                    tag: widget.heroTag,
+                    showLoading: false,
+                    path: _existThumbnailFile()
+                        ? widget.data.thumbnailPath
+                        : null,
+                  );
+                },
+              )
+            : _buildImageWidgetPre()
         : FutureBuilder(
             future: getDownloadFuture(),
             builder: (_, snapshot) {
               if (snapshot.hasData) {
                 if ('success' == snapshot.data) {
-                  return _buildImageWidget(
-                      FileImage(File.fromUri(Uri.file(widget.data.path!))));
+                  return _buildImageWidgetPre();
                 } else {
                   return ImageError(
                     msg: '加载图片失败',
@@ -169,6 +175,58 @@ class _ImagePreviewState extends State<ImagePreview> {
                 );
               }
             });
+  }
+
+  Widget _buildWeb() {
+    if (widget.data.url == null || widget.data.url!.isEmpty) {
+      return ImageError(
+        msg: '加载图片失败',
+        describe: '地址为空',
+      );
+    }
+    return widget.open
+        ? FutureBuilder(
+            future: Future.delayed(Duration(milliseconds: 500)),
+            builder: (_, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                return _buildImageWidgetPreWeb();
+              }
+              return widget.data.thumbnailUrl == null
+                  ? SizedBox()
+                  : Align(
+                      alignment: Alignment.center,
+                      child: Hero(
+                        child: Container(
+                          width: double.infinity,
+                          child: Image(
+                            image: NetworkImage(widget.data.thumbnailUrl!),
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                        tag: widget.heroTag,
+                      ),
+                    );
+            },
+          )
+        : _buildImageWidgetPreWeb();
+  }
+
+  Widget _buildImageWidgetPreWeb() {
+    return _buildImageWidget(
+      NetworkImage(widget.data.url!),
+      widget.data.thumbnailUrl == null
+          ? null
+          : NetworkImage(widget.data.thumbnailUrl!),
+    );
+  }
+
+  Widget _buildImageWidgetPre() {
+    return _buildImageWidget(
+      FileImage(File.fromUri(Uri.file(widget.data.path!))),
+      _existThumbnailFile()
+          ? FileImage(File.fromUri(Uri.file(widget.data.thumbnailPath!)))
+          : null,
+    );
   }
 
   Widget _buildImageWidget(ImageProvider imageProvide,
@@ -189,9 +247,14 @@ class _ImagePreviewState extends State<ImagePreview> {
         loadingBuilder: loadImageProvide == null
             ? null
             : (_, event) {
-                return Hero(
-                  tag: widget.heroTag,
-                  child: Center(child: Image(image: loadImageProvide)),
+                return Center(
+                  child: Container(
+                    width: double.infinity,
+                    child: Image(
+                      image: loadImageProvide,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
                 );
               },
         heroAttributes: PhotoViewHeroAttributes(tag: widget.heroTag),
@@ -244,10 +307,12 @@ class _ImagePreviewState extends State<ImagePreview> {
 class ImageLoading extends StatelessWidget {
   final String? path;
   final String tag;
+  final bool showLoading;
 
   const ImageLoading({
     Key? key,
     this.path,
+    this.showLoading = true,
     required this.tag,
   }) : super(key: key);
 
@@ -262,20 +327,30 @@ class ImageLoading extends StatelessWidget {
 
     return path == null || path!.isEmpty
         ? widget
-        : Stack(
-            children: <Widget>[
-              Center(
-                child: Hero(
+        : Builder(builder: (context) {
+            final child = Align(
+              alignment: Alignment.center,
+              child: Hero(
+                child: Container(
+                  width: double.infinity,
                   child: Image(
                     image: FileImage(File.fromUri(Uri.file(path!))),
                     fit: BoxFit.contain,
                   ),
-                  tag: tag,
                 ),
+                tag: tag,
               ),
-              widget,
-            ],
-          );
+            );
+
+            return showLoading
+                ? Stack(
+                    children: <Widget>[
+                      child,
+                      widget,
+                    ],
+                  )
+                : child;
+          });
   }
 }
 

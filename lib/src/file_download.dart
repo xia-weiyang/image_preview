@@ -38,9 +38,13 @@ class FileDownloader {
       }
       await tempFile.rename(target.path);
       debugPrint('File downloaded success! path:${target.path}');
+
+      // 延迟500ms，避免动画过程中切换图片
+      await Future.delayed(Duration(milliseconds: 500));
+
       return 'success';
     } catch (e, stack) {
-      print('Download error: $e \n $stack');
+      debugPrint('Download error: $e \n $stack');
       return 'Download error: $e';
     }
   }

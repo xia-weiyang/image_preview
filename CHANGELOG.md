@@ -1,3 +1,5 @@
+## 1.1.1
+* Add BoxFit and OnLongPress.
 ## 1.1.0
 * Rebuild core code.
 ## 1.0.7

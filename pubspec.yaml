@@ -1,6 +1,6 @@
 name: image_preview
 description: Preview pictures and support left and right sliding switch.
-version: 1.1.0
+version: 1.1.1
 homepage: https://github.com/xia-weiyang/image_preview
 
 environment:
