@@ -1,3 +1,5 @@
+## 1.1.2
+* Fix download bug.
 ## 1.1.1
 * Add BoxFit and OnLongPress.
 ## 1.1.0

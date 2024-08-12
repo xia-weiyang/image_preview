@@ -5,58 +5,135 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 
-class FileDownloader {
-  HttpClient? httpClient;
+class _DownloaderData {
+  _DownloaderData(this.url, this.savePath);
+
+  final url;
+  final savePath;
+  final callbackList = <_DownloaderCallback>[];
   HttpClientRequest? request;
+}
 
-  Future<String> download(String url, String savePath) async {
-    try {
-      debugPrint('download:$url');
+typedef _DownloaderCallback(String result);
 
-      cancel();
+final _waitList = <_DownloaderData>[];
+final _downloadingList = <_DownloaderData>[];
+const _maxDownLoadingNum = 3; // 同时最大的下载个数
 
-      httpClient ??= HttpClient();
-      // 创建请求
-      request = await httpClient!.getUrl(Uri.parse(url));
-      // 发送请求并获取响应
-      HttpClientResponse response = await request!.close();
-      // 使用临时文件路径
-      String tempFilePath = '$savePath.temp';
-      File tempFile = File(tempFilePath);
-      if (await tempFile.exists()) {
-        await tempFile.delete();
-      }
-      await tempFile.create(recursive: true);
-      // 将响应内容写入临时文件
-      await response.pipe(tempFile.openWrite());
-      httpClient!.close();
 
-      // 下载完成，将临时文件重命名为目标文件
-      File target = File(savePath);
-      if (await target.exists()) {
-        await target.delete();
-      }
-      await tempFile.rename(target.path);
-      debugPrint('File downloaded success! path:${target.path}');
+HttpClient? _httpClient;
 
-      // 延迟500ms，避免动画过程中切换图片
-      await Future.delayed(Duration(milliseconds: 500));
+void _download(_DownloaderData data) async {
+  try {
+    _waitList.remove(data);
+    _downloadingList.add(data);
 
-      return 'success';
-    } catch (e, stack) {
-      debugPrint('Download error: $e \n $stack');
-      return 'Download error: $e';
+    debugPrint('download:${data.url}');
+
+    _httpClient ??= HttpClient();
+    // 创建请求
+    data.request = await _httpClient!.getUrl(Uri.parse(data.url));
+    // 发送请求并获取响应
+    HttpClientResponse response = await data.request!.close();
+    // 使用临时文件路径
+    String tempFilePath = '${data.savePath}.temp';
+    File tempFile = File(tempFilePath);
+    if (await tempFile.exists()) {
+      await tempFile.delete();
     }
+    await tempFile.create(recursive: true);
+    // 将响应内容写入临时文件
+    await response.pipe(tempFile.openWrite());
+
+    // 下载完成，将临时文件重命名为目标文件
+    File target = File(data.savePath);
+    if (await target.exists()) {
+      await target.delete();
+    }
+    await tempFile.rename(target.path);
+
+    // 延迟500ms，避免动画过程中切换图片
+    await Future.delayed(Duration(milliseconds: 500));
+
+    debugPrint('File downloaded success! path:${target.path}');
+    data.callbackList.forEach((it) {
+      it('success');
+    });
+  } catch (e, stack) {
+    debugPrint('Download error: $e \n $stack');
+    data.callbackList.forEach((it) {
+      it('Download error: $e');
+    });
+  }
+
+  _downloadingList.remove(data);
+  // 开始新的下载
+  _startNewDownload();
+}
+
+void _startNewDownload(){
+  // 开始新的下载
+  if (_downloadingList.length < _maxDownLoadingNum) {
+    if (_waitList.isNotEmpty) {
+      final temp = _waitList[0];
+      _waitList.removeAt(0);
+      _download(temp);
+    }
+  }
+}
+
+class FileDownloader {
+  _DownloaderData? data;
+  _DownloaderCallback? callback;
+
+  /**
+   * 开始下载某一文件
+   */
+  Future<String> download(String url, String savePath) async {
+    final completer = Completer<String>();
+    // 检查有无下载的是重复文件
+    var findIndex = _downloadingList.indexWhere((it) => it.url == url);
+    if (findIndex >= 0) {
+      data = _downloadingList[findIndex];
+    } else {
+      findIndex = _waitList.indexWhere((it) => it.url == url);
+      if (findIndex >= 0) {
+        data = _waitList[findIndex];
+      }
+    }
+    if (data != null) {
+      data!.callbackList.add(callback = (result) => completer.complete(result));
+      return completer.future;
+    }
+
+    data = _DownloaderData(url, savePath);
+    data!.callbackList.add(callback = (result) => completer.complete(result));
+    // 下载队列已满
+    if (_downloadingList.length >= _maxDownLoadingNum) {
+      _waitList.add(data!);
+      return completer.future;
+    }
+
+    // 执行下载
+    _download(data!);
+    return completer.future;
   }
 
   Future<void> cancel() async {
-    if (request != null) {
-      request!.abort();
-      request = null;
-    }
-    if (httpClient != null) {
-      httpClient!.close(force: true);
-      httpClient = null;
+    if (data != null) {
+      if (callback != null) {
+        data!.callbackList.remove(callback!);
+      }
+      if (data!.callbackList.isEmpty) {
+        // 中断请求
+        if (data!.request != null) {
+          data!.request!.abort();
+          data!.request = null;
+          // debugPrint('download cancel:${data!.url}');
+          _downloadingList.remove(data);
+          _startNewDownload();
+        }
+      }
     }
   }
 }
