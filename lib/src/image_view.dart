@@ -130,6 +130,14 @@ class _ImagePreviewState extends State<ImagePreview> {
   }
 
   @override
+  void didUpdateWidget(covariant ImagePreview oldWidget) {
+    fileDownloader?.cancel();
+    fileDownloader = null;
+    downloadFuture = null;
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Widget build(BuildContext context) {
     // 如果是web环境，直接加载网络图片
     if (kIsWeb) {

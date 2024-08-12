@@ -30,6 +30,14 @@ class _ImagePreviewThumbnailViewState extends State<ImagePreviewThumbnailView> {
   }
 
   @override
+  void didUpdateWidget(covariant ImagePreviewThumbnailView oldWidget) {
+    fileDownloader?.cancel();
+    fileDownloader = null;
+    downloadFuture = null;
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (kIsWeb) {
       if (widget.data.thumbnailUrl == null ||
