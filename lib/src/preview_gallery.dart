@@ -38,6 +38,10 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
     _controller = PageController(initialPage: widget.initialIndex);
     _locked = false;
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      handlerPageChanged(widget.initialIndex);
+    });
   }
 
   void scaleStateChangedCallback(PhotoViewScaleState scaleState) {
