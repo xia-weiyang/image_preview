@@ -12,18 +12,21 @@ class _DownloaderData {
   final savePath;
   final callbackList = <_DownloaderCallback>[];
   HttpClientRequest? request;
+  List<bool>? isCancel = null;
 }
 
 typedef _DownloaderCallback(String result);
 
 final _waitList = <_DownloaderData>[];
 final _downloadingList = <_DownloaderData>[];
-const _maxDownLoadingNum = 3; // 同时最大的下载个数
+const _maxDownLoadingNum = 5; // 同时最大的下载个数
 
 
 HttpClient? _httpClient;
 
 void _download(_DownloaderData data) async {
+  final tempCancel = [false];
+  data.isCancel = tempCancel;
   try {
     _waitList.remove(data);
     _downloadingList.add(data);
@@ -46,21 +49,26 @@ void _download(_DownloaderData data) async {
     await response.pipe(tempFile.openWrite());
 
     // 下载完成，将临时文件重命名为目标文件
+    if(tempCancel[0]) return;
     File target = File(data.savePath);
     if (await target.exists()) {
+      if(tempCancel[0]) return;
       await target.delete();
     }
+    if(tempCancel[0]) return;
     await tempFile.rename(target.path);
 
     // 延迟500ms，避免动画过程中切换图片
+    if(tempCancel[0]) return;
     await Future.delayed(Duration(milliseconds: 500));
-
+    if(tempCancel[0]) return;
     debugPrint('File downloaded success! path:${target.path}');
     data.callbackList.forEach((it) {
       it('success');
     });
   } catch (e, stack) {
     debugPrint('Download error: $e \n $stack');
+    if(tempCancel[0]) return;
     data.callbackList.forEach((it) {
       it('Download error: $e');
     });
@@ -129,7 +137,10 @@ class FileDownloader {
         if (data!.request != null) {
           data!.request!.abort();
           data!.request = null;
-          // debugPrint('download cancel:${data!.url}');
+          if(data!.isCancel != null){
+            data!.isCancel![0] = true;
+          }
+          debugPrint('download cancel:${data!.url}');
           _downloadingList.remove(data);
           _startNewDownload();
         }
