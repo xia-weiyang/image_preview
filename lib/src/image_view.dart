@@ -122,6 +122,14 @@ class ImagePreview extends StatefulWidget {
 class _ImagePreviewState extends State<ImagePreview> {
   FileDownloader? fileDownloader;
   Future<String>? downloadFuture;
+  final delay =  Future.delayed(Duration(milliseconds: 500));
+  var open = false;
+
+  @override
+  void initState() {
+    open = widget.open;
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -145,9 +153,9 @@ class _ImagePreviewState extends State<ImagePreview> {
     }
 
     return _existFile()
-        ? widget.open
+        ? open
             ? FutureBuilder(
-                future: Future.delayed(Duration(milliseconds: 500)),
+                future: delay,
                 builder: (_, snapshot) {
                   if (snapshot.connectionState == ConnectionState.done) {
                     return _buildImageWidgetPre();
@@ -191,9 +199,9 @@ class _ImagePreviewState extends State<ImagePreview> {
         describe: '地址为空',
       );
     }
-    return widget.open
+    return open
         ? FutureBuilder(
-            future: Future.delayed(Duration(milliseconds: 500)),
+            future: delay,
             builder: (_, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
                 return _buildImageWidgetPreWeb();
