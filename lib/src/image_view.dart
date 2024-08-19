@@ -122,12 +122,21 @@ class ImagePreview extends StatefulWidget {
 class _ImagePreviewState extends State<ImagePreview> {
   FileDownloader? fileDownloader;
   Future<String>? downloadFuture;
-  final delay =  Future.delayed(Duration(milliseconds: 500));
+  final delay = Future.delayed(Duration(milliseconds: 500));
   var open = false;
+  ImageProvider? imageProvide;
+  ImageProvider? imageProvideThumbnail;
 
   @override
   void initState() {
     open = widget.open;
+    if (widget.data.url != null && widget.data.url!.isNotEmpty) {
+      imageProvide = NetworkImage(widget.data.url!);
+    }
+    if (widget.data.thumbnailUrl != null &&
+        widget.data.thumbnailUrl!.isNotEmpty) {
+      imageProvideThumbnail = NetworkImage(widget.data.thumbnailUrl!);
+    }
     super.initState();
   }
 
@@ -206,7 +215,7 @@ class _ImagePreviewState extends State<ImagePreview> {
               if (snapshot.connectionState == ConnectionState.done) {
                 return _buildImageWidgetPreWeb();
               }
-              return widget.data.thumbnailUrl == null
+              return imageProvideThumbnail == null
                   ? SizedBox()
                   : Align(
                       alignment: Alignment.center,
@@ -214,7 +223,7 @@ class _ImagePreviewState extends State<ImagePreview> {
                         child: Container(
                           width: double.infinity,
                           child: Image(
-                            image: NetworkImage(widget.data.thumbnailUrl!),
+                            image: imageProvideThumbnail!,
                             fit: BoxFit.contain,
                           ),
                         ),
@@ -228,10 +237,8 @@ class _ImagePreviewState extends State<ImagePreview> {
 
   Widget _buildImageWidgetPreWeb() {
     return _buildImageWidget(
-      NetworkImage(widget.data.url!),
-      widget.data.thumbnailUrl == null
-          ? null
-          : NetworkImage(widget.data.thumbnailUrl!),
+      imageProvide!,
+      imageProvideThumbnail == null ? null : imageProvideThumbnail,
     );
   }
 
