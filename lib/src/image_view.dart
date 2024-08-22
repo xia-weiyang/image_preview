@@ -148,9 +148,12 @@ class _ImagePreviewState extends State<ImagePreview> {
 
   @override
   void didUpdateWidget(covariant ImagePreview oldWidget) {
-    fileDownloader?.cancel();
-    fileDownloader = null;
-    downloadFuture = null;
+    if (widget.data.url != oldWidget.data.url ||
+        widget.data.path != oldWidget.data.path) {
+      fileDownloader?.cancel();
+      fileDownloader = null;
+      downloadFuture = null;
+    }
     super.didUpdateWidget(oldWidget);
   }
 

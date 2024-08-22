@@ -140,7 +140,7 @@ class FileDownloader {
           if(data!.isCancel != null){
             data!.isCancel![0] = true;
           }
-          debugPrint('download cancel:${data!.url}');
+          // debugPrint('download cancel:${data!.url}');
           _downloadingList.remove(data);
           _startNewDownload();
         }

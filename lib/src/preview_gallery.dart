@@ -9,6 +9,7 @@ class ImageGalleryPage extends StatefulWidget {
     Key? key,
     required this.data,
     this.initialIndex = 0,
+    this.indicator = false,
     this.onLongPressHandler,
     this.onPageChanged,
   }) : super(key: key) {}
@@ -17,6 +18,9 @@ class ImageGalleryPage extends StatefulWidget {
   _ImageGalleryPageState createState() => _ImageGalleryPageState();
 
   final int initialIndex;
+
+  /// 是否显示左右切换按钮
+  final bool indicator;
 
   final List<PreviewData> data;
 
@@ -30,6 +34,7 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
   late PageController _controller;
   late bool _locked;
   var firstOpen = true;
+  var currentPage = 0;
 
   final _infoWidgetMap = Map<int, Widget>();
 
@@ -37,6 +42,7 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
   void initState() {
     _controller = PageController(initialPage: widget.initialIndex);
     _locked = false;
+    currentPage = widget.initialIndex;
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -71,37 +77,82 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
         constraints: BoxConstraints.expand(
           height: MediaQuery.of(context).size.height,
         ),
-        child: GestureDetector(
-          onTap: () {
-            Navigator.of(context).pop();
-          },
-          onDoubleTap: () {},
-          child: PageView.builder(
-            controller: _controller,
-            itemCount: itemCount,
-            onPageChanged: (index) {
-              // print(index);
-              handlerPageChanged(index);
-            },
-            itemBuilder: (BuildContext context, int index) {
-              final widget = _buildItem(
-                context,
-                index,
-                _infoWidgetMap[index],
-              );
-              firstOpen = false;
-              return widget;
-            },
-            physics: _locked
-                ? const NeverScrollableScrollPhysics()
-                : ClampingScrollPhysics(),
-          ),
+        child: Stack(
+          children: [
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).pop();
+              },
+              onDoubleTap: () {},
+              child: PageView.builder(
+                controller: _controller,
+                itemCount: itemCount,
+                onPageChanged: (index) {
+                  // print(index);
+                  handlerPageChanged(index);
+                },
+                itemBuilder: (BuildContext context, int index) {
+                  final widget = _buildItem(
+                    context,
+                    index,
+                    _infoWidgetMap[index],
+                  );
+                  firstOpen = false;
+                  return widget;
+                },
+                physics: _locked
+                    ? const NeverScrollableScrollPhysics()
+                    : ClampingScrollPhysics(),
+              ),
+            ),
+            if (widget.indicator)
+              Align(
+                alignment: Alignment.center,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 32, right: 32),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      currentPage > 0
+                          ? IndicatorWidget(
+                              icon: Icons.chevron_left_outlined,
+                              onTap: () {
+                                _controller.previousPage(
+                                  duration: Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                              },
+                            )
+                          : const SizedBox(),
+                      currentPage < itemCount - 1
+                          ? IndicatorWidget(
+                              icon: Icons.chevron_right_outlined,
+                              onTap: () {
+                                _controller.nextPage(
+                                  duration: Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                              },
+                            )
+                          : const SizedBox(),
+                    ],
+                  ),
+                ),
+              )
+          ],
         ),
       ),
     );
   }
 
   void handlerPageChanged(int index) async {
+    if (currentPage != index) {
+      setState(() {
+        currentPage = index;
+      });
+      debugPrint('currentPage $currentPage');
+    }
     if (widget.onPageChanged == null) return;
     var tempWidget = await widget.onPageChanged!(index, _infoWidgetMap[index]);
     if (tempWidget == null) return;
@@ -128,5 +179,53 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
     } else {
       return SizedBox();
     }
+  }
+}
+
+class IndicatorWidget extends StatefulWidget {
+  const IndicatorWidget({
+    super.key,
+    required this.icon,
+    this.onTap,
+  });
+
+  final IconData icon;
+  final GestureTapCallback? onTap;
+
+  @override
+  State<StatefulWidget> createState() => IndicatorWidgetState();
+}
+
+class IndicatorWidgetState extends State<IndicatorWidget> {
+  var colorAlpha = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipOval(
+      child: GestureDetector(
+        onTapDown: (details) {
+          setState(() {
+            colorAlpha = 50;
+          });
+        },
+        onTapUp: (details) {
+          setState(() {
+            colorAlpha = 0;
+          });
+        },
+        onTap: widget.onTap,
+        child: Container(
+          width: 40,
+          height: 40,
+          color: Colors.white.withAlpha(20 + colorAlpha),
+          child: Center(
+            child: Icon(
+              widget.icon,
+              color: Colors.white.withAlpha(180 + colorAlpha),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

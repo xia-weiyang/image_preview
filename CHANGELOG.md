@@ -1,3 +1,5 @@
+## 1.2.0
+* Add left and right button switching.
 ## 1.1.7
 * Fix bug.
 ## 1.1.6

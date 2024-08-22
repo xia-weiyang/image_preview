@@ -66,12 +66,14 @@ void openPreviewPage(
 }
 
 /// 打开多张图片
+/// [indicator] 是否显示左右切换的按钮
 /// [onPageChanged] 切换图片时调用，第一次打开时也会被调用
 /// 返回的[Widget]可用于展示图片描述信息，如不需要可返回null
 void openPreviewPages(
   NavigatorState navigatorState, {
   required List<PreviewData> data,
   int index = 0,
+  bool indicator = false,
   OnLongPressHandler? onLongPressHandler,
   OnPageChanged? onPageChanged,
 }) {
@@ -79,6 +81,7 @@ void openPreviewPages(
     return ImageGalleryPage(
       data: data,
       initialIndex: index,
+      indicator: indicator,
       onLongPressHandler: onLongPressHandler,
       onPageChanged: onPageChanged,
     );
