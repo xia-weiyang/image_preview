@@ -217,7 +217,7 @@ class IndicatorWidgetState extends State<IndicatorWidget> {
         child: Container(
           width: 40,
           height: 40,
-          color: Colors.white.withAlpha(20 + colorAlpha),
+          color: Colors.white.withAlpha(30 + colorAlpha),
           child: Center(
             child: Icon(
               widget.icon,
