@@ -1,3 +1,5 @@
+## 1.2.1
+* Add Json conversion method.
 ## 1.2.0
 * Add left and right button switching.
 ## 1.1.7
