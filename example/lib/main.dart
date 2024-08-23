@@ -32,6 +32,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final List<PreviewData> dataList = [];
+  var currentIndex = -1;
 
   @override
   void initState() {
@@ -98,19 +99,28 @@ class _MyHomePageState extends State<MyHomePage> {
                     Navigator.of(context),
                     data: dataList,
                     index: i,
+                    tipWidget: Align(
+                      alignment: Alignment.topRight,
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                            top: MediaQuery.of(context).padding.top + 16,
+                            right: 32),
+                        child: InkWell(
+                          onTap: () {
+                            debugPrint('tap tip $currentIndex');
+                          },
+                          child: Icon(
+                            Icons.info_outline,
+                            color: Colors.white.withAlpha(180),
+                          ),
+                        ),
+                      ),
+                    ),
                     onLongPressHandler: (con, url) =>
                         debugPrint(preview.image?.url),
-                    onPageChanged: (i, widget) async {
-                      if (widget != null) return widget;
-                      await Future.delayed(const Duration(seconds: 3));
-                      return i > 1
-                          ? null
-                          : const Text(
-                              '图片描述信息',
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
-                            );
+                    onPageChanged: (i) async {
+                      debugPrint('onPageChanged $i');
+                      currentIndex = i;
                     },
                   );
                 },

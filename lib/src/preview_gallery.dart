@@ -12,6 +12,7 @@ class ImageGalleryPage extends StatefulWidget {
     this.indicator = false,
     this.onLongPressHandler,
     this.onPageChanged,
+    this.tipWidget,
   }) : super(key: key) {}
 
   @override
@@ -28,15 +29,15 @@ class ImageGalleryPage extends StatefulWidget {
 
   ///第一次打开图片也会被执行
   final OnPageChanged? onPageChanged;
+
+  final Widget? tipWidget;
 }
 
 class _ImageGalleryPageState extends State<ImageGalleryPage> {
   late PageController _controller;
   late bool _locked;
   var firstOpen = true;
-  var currentPage = 0;
-
-  final _infoWidgetMap = Map<int, Widget>();
+  var currentPage = -1;
 
   @override
   void initState() {
@@ -95,7 +96,6 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
                   final widget = _buildItem(
                     context,
                     index,
-                    _infoWidgetMap[index],
                   );
                   firstOpen = false;
                   return widget;
@@ -105,6 +105,7 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
                     : ClampingScrollPhysics(),
               ),
             ),
+            if (widget.tipWidget != null) widget.tipWidget!,
             if (widget.indicator)
               Align(
                 alignment: Alignment.center,
@@ -154,26 +155,22 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
       debugPrint('currentPage $currentPage');
     }
     if (widget.onPageChanged == null) return;
-    var tempWidget = await widget.onPageChanged!(index, _infoWidgetMap[index]);
-    if (tempWidget == null) return;
-    if (mounted) setState(() => _infoWidgetMap[index] = tempWidget);
+    widget.onPageChanged!(currentPage);
   }
 
   Widget _buildItem(
     BuildContext context,
     int index,
-    Widget? infoWidget,
   ) {
     final preview = widget.data[index];
     if (preview.type == Type.image) {
       return ClipRect(
-        child: ImageView(
+        child: ImagePreview(
           data: preview.image!,
           heroTag: preview.heroTag ?? '',
           open: firstOpen && index == widget.initialIndex,
           scaleStateChangedCallback: scaleStateChangedCallback,
           onLongPressHandler: widget.onLongPressHandler,
-          infoWidget: infoWidget,
         ),
       );
     } else {

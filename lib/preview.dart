@@ -53,12 +53,14 @@ class PreviewThumbnailState extends State<PreviewThumbnail> {
 void openPreviewPage(
   NavigatorState navigatorState, {
   required PreviewData data,
+  Widget? tipWidget,
   OnLongPressHandler? onLongPressHandler,
   OnPageChanged? onPageChanged,
 }) {
   navigatorState.push(FadePageRoute<void>(builder: (BuildContext context) {
     return ImageGalleryPage(
       data: [data],
+      tipWidget: tipWidget,
       onLongPressHandler: onLongPressHandler,
       onPageChanged: onPageChanged,
     );
@@ -74,6 +76,7 @@ void openPreviewPages(
   required List<PreviewData> data,
   int index = 0,
   bool indicator = false,
+  Widget? tipWidget,
   OnLongPressHandler? onLongPressHandler,
   OnPageChanged? onPageChanged,
 }) {
@@ -82,6 +85,7 @@ void openPreviewPages(
       data: data,
       initialIndex: index,
       indicator: indicator,
+      tipWidget: tipWidget,
       onLongPressHandler: onLongPressHandler,
       onPageChanged: onPageChanged,
     );
@@ -89,5 +93,4 @@ void openPreviewPages(
 }
 
 /// 图片加载变化
-/// [infoWidget] 当为null时 此图片对应的没有图片描述信息
-typedef Future<Widget?> OnPageChanged(int index, Widget? infoWidget);
+typedef void OnPageChanged(int index);

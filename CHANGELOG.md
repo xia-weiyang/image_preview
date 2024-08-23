@@ -1,3 +1,5 @@
+## 1.2.2
+* Remove InfoWidget and Add TipWidget.
 ## 1.2.1
 * Add Json conversion method.
 ## 1.2.0
