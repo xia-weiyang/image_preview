@@ -13,6 +13,7 @@ class ImageGalleryPage extends StatefulWidget {
     this.onLongPressHandler,
     this.onPageChanged,
     this.tipWidget,
+    this.disableOnTap = false,
   }) : super(key: key) {}
 
   @override
@@ -31,6 +32,8 @@ class ImageGalleryPage extends StatefulWidget {
   final OnPageChanged? onPageChanged;
 
   final Widget? tipWidget;
+
+  final bool disableOnTap;
 }
 
 class _ImageGalleryPageState extends State<ImageGalleryPage> {
@@ -81,10 +84,12 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
         child: Stack(
           children: [
             GestureDetector(
-              onTap: () {
-                Navigator.of(context).pop();
-              },
-              onDoubleTap: () {},
+              onTap: widget.disableOnTap
+                  ? null
+                  : () {
+                      print('-----------');
+                      Navigator.of(context).pop();
+                    },
               child: PageView.builder(
                 controller: _controller,
                 itemCount: itemCount,

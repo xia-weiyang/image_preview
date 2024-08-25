@@ -1,3 +1,5 @@
+## 1.2.3
+* Add disableOnTap.
 ## 1.2.2
 * Remove InfoWidget and Add TipWidget.
 ## 1.2.1

@@ -54,6 +54,7 @@ void openPreviewPage(
   NavigatorState navigatorState, {
   required PreviewData data,
   Widget? tipWidget,
+  bool disableOnTap = false,
   OnLongPressHandler? onLongPressHandler,
   OnPageChanged? onPageChanged,
 }) {
@@ -61,6 +62,7 @@ void openPreviewPage(
     return ImageGalleryPage(
       data: [data],
       tipWidget: tipWidget,
+      disableOnTap: disableOnTap,
       onLongPressHandler: onLongPressHandler,
       onPageChanged: onPageChanged,
     );
@@ -77,6 +79,7 @@ void openPreviewPages(
   int index = 0,
   bool indicator = false,
   Widget? tipWidget,
+  bool disableOnTap = false,
   OnLongPressHandler? onLongPressHandler,
   OnPageChanged? onPageChanged,
 }) {
@@ -86,6 +89,7 @@ void openPreviewPages(
       initialIndex: index,
       indicator: indicator,
       tipWidget: tipWidget,
+      disableOnTap: disableOnTap,
       onLongPressHandler: onLongPressHandler,
       onPageChanged: onPageChanged,
     );
