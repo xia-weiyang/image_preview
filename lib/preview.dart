@@ -100,4 +100,4 @@ void openPreviewPages(
 typedef void OnPageChanged(int index);
 
 // 构建TipWidget
-typedef Widget BuildTipWidget(int index);
+typedef Widget? BuildTipWidget(int index);

@@ -73,6 +73,10 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
 
   @override
   Widget build(BuildContext context) {
+    Widget? tipTemp = null;
+    if (widget.tipWidget != null) {
+      tipTemp = widget.tipWidget!(currentPage);
+    }
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -109,7 +113,7 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
                     : ClampingScrollPhysics(),
               ),
             ),
-            if (widget.tipWidget != null) widget.tipWidget!(currentPage),
+            if (tipTemp != null) tipTemp,
             if (widget.indicator)
               Align(
                 alignment: Alignment.center,
