@@ -1,3 +1,5 @@
+## 1.2.4
+* Improve TipWidget.
 ## 1.2.3
 * Add disableOnTap.
 ## 1.2.2

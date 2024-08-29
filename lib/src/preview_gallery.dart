@@ -31,7 +31,7 @@ class ImageGalleryPage extends StatefulWidget {
   ///第一次打开图片也会被执行
   final OnPageChanged? onPageChanged;
 
-  final Widget? tipWidget;
+  final BuildTipWidget? tipWidget;
 
   final bool disableOnTap;
 }
@@ -87,7 +87,6 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
               onTap: widget.disableOnTap
                   ? null
                   : () {
-                      print('-----------');
                       Navigator.of(context).pop();
                     },
               child: PageView.builder(
@@ -110,7 +109,7 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
                     : ClampingScrollPhysics(),
               ),
             ),
-            if (widget.tipWidget != null) widget.tipWidget!,
+            if (widget.tipWidget != null) widget.tipWidget!(currentPage),
             if (widget.indicator)
               Align(
                 alignment: Alignment.center,

@@ -32,7 +32,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final List<PreviewData> dataList = [];
-  var currentIndex = -1;
 
   @override
   void initState() {
@@ -47,9 +46,9 @@ class _MyHomePageState extends State<MyHomePage> {
           type: Type.image,
           heroTag: 'b53764c82a1940',
           image: ImageData(
-            url: 'https://xia-weiyang.github.io/image/1.jpg',
+            url: 'https://xia-weiyang.onrender.com/image/1.jpg',
             path: '$path/image/1.jpg',
-            thumbnailUrl: 'https://xia-weiyang.github.io/image/1_thumbnail.jpg',
+            thumbnailUrl: 'https://xia-weiyang.onrender.com/image/1_thumbnail.jpg',
             thumbnailPath: '$path/image/1_thumbnail.jpg',
           ),
         ),
@@ -57,7 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
           type: Type.image,
           heroTag: 'c53764c82a1940',
           image: ImageData(
-            thumbnailUrl: 'https://xia-weiyang.github.io/image/2.jpg',
+            thumbnailUrl: 'https://xia-weiyang.onrender.com/image/2.jpg',
             thumbnailPath: '$path/image/2.jpg',
           ),
         ),
@@ -65,10 +64,10 @@ class _MyHomePageState extends State<MyHomePage> {
           type: Type.image,
           heroTag: '112cc8a34e13',
           image: ImageData(
-            url: 'https://xia-weiyang.github.io/image/3.jpg',
+            url: 'https://xia-weiyang.onrender.com/image/3.jpg',
             path: '$path/image/3.jpg',
-            thumbnailUrl: 'https://xia-weiyang.github.io/image/1_thumbnail.jpg',
-            thumbnailPath: '$path/image/1_thumbnail.jpg',
+            thumbnailUrl: 'https://xia-weiyang.onrender.com/image/3.jpg',
+            thumbnailPath: '$path/image/3.jpg',
           ),
         ),
       ];
@@ -99,28 +98,30 @@ class _MyHomePageState extends State<MyHomePage> {
                     Navigator.of(context),
                     data: dataList,
                     index: i,
-                    tipWidget: Align(
-                      alignment: Alignment.topRight,
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                            top: MediaQuery.of(context).padding.top + 16,
-                            right: 32),
-                        child: InkWell(
-                          onTap: () {
-                            debugPrint('tap tip $currentIndex');
-                          },
-                          child: Icon(
-                            Icons.info_outline,
-                            color: Colors.white.withAlpha(180),
+                    tipWidget: (currentIndex) {
+                      return Align(
+                        alignment: Alignment.topRight,
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                              top: MediaQuery.of(context).padding.top + 16,
+                              right: 32),
+                          child: InkWell(
+                            onTap: () {
+                              debugPrint('tap tip $currentIndex');
+                            },
+                            child: Text(
+                              '${currentIndex + 1}/${dataList.length}',
+                              style:
+                                  TextStyle(color: Colors.white.withAlpha(180)),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                     onLongPressHandler: (con, url) =>
                         debugPrint(preview.image?.url),
                     onPageChanged: (i) async {
                       debugPrint('onPageChanged $i');
-                      currentIndex = i;
                     },
                   );
                 },
