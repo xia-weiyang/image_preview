@@ -1,3 +1,5 @@
+## 1.2.5
+* Fix ThumbnailView bug.
 ## 1.2.4
 * Improve TipWidget.
 ## 1.2.3

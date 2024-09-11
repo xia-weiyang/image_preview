@@ -31,8 +31,8 @@ class _ImagePreviewThumbnailViewState extends State<ImagePreviewThumbnailView> {
 
   @override
   void didUpdateWidget(covariant ImagePreviewThumbnailView oldWidget) {
-    if (widget.data.thumbnailUrl != widget.data.thumbnailUrl ||
-        widget.data.thumbnailPath != widget.data.thumbnailPath) {
+    if (widget.data.thumbnailUrl != oldWidget.data.thumbnailUrl ||
+        widget.data.thumbnailPath != oldWidget.data.thumbnailPath) {
       fileDownloader?.cancel();
       fileDownloader = null;
       downloadFuture = null;
