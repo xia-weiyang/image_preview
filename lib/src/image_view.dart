@@ -1,14 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_preview/preview_data.dart';
 import 'package:image_preview/src/file_download.dart';
+import 'package:image_preview/src/preview_gallery.dart';
 import 'package:photo_view/photo_view.dart';
-
-typedef OnLongPressHandler(BuildContext context, PreviewData data);
-
 
 class ImagePreview extends StatefulWidget {
   const ImagePreview({
@@ -256,9 +255,11 @@ class ImageLoading extends StatelessWidget {
   Widget build(BuildContext context) {
     final widget = Center(
         child: SizedBox(
-      child: CircularProgressIndicator(
-        valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
-      ),
+      child: Platform.isIOS || Platform.isMacOS
+          ? const CupertinoActivityIndicator()
+          : const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+            ),
     ));
 
     return path == null || path!.isEmpty

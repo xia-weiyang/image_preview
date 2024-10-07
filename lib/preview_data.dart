@@ -9,11 +9,13 @@ class PreviewData {
     required this.type,
     this.heroTag,
     this.image,
+    this.video,
   });
 
   final Type type;
 
   final ImageData? image;
+  final VideoData? video;
 
   final String? heroTag;
 
@@ -22,15 +24,18 @@ class PreviewData {
       'type': type.name,
       'heroTag': heroTag,
       'image': image?.toJson(),
+      'video': video?.toJson(),
     };
   }
 
   factory PreviewData.fromJson(Map<String, dynamic> json) {
     final image = json['image'];
+    final video = json['video'];
     return PreviewData(
       type: Type.values.firstWhere((it) => json['type'] as String == it.name),
       heroTag: json['heroTag'] as String,
-      image: image == null ? null : ImageData.fromJson(json['image']),
+      image: image == null ? null : ImageData.fromJson(image),
+      video: video == null ? null : VideoData.fromJson(video),
     );
   }
 }
@@ -73,6 +78,42 @@ class ImageData {
       path: path == null ? null : path as String,
       thumbnailUrl: thumbnailUrl == null ? null : thumbnailUrl as String,
       thumbnailPath: thumbnailPath == null ? null : thumbnailPath as String,
+    );
+  }
+}
+
+class VideoData {
+  const VideoData({
+    this.coverPath,
+    this.coverUrl,
+    this.url,
+  });
+
+  /// 视频封面缓存路径
+  final String? coverPath;
+
+  /// 视频封面地址
+  final String? coverUrl;
+
+  /// 视频地址
+  final String? url;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'url': url,
+      'coverUrl': coverUrl,
+      'coverPath': coverPath,
+    };
+  }
+
+  factory VideoData.fromJson(Map<String, dynamic> json) {
+    final url = json['url'];
+    final coverUrl = json['coverUrl'];
+    final coverPath = json['coverPath'];
+    return VideoData(
+      url: url == null ? null : url as String,
+      coverUrl: coverUrl == null ? null : coverUrl as String,
+      coverPath: coverPath == null ? null : coverPath as String,
     );
   }
 }

@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:image_preview/preview.dart';
 import 'package:image_preview/preview_data.dart';
 import 'package:image_preview/src/image_view.dart';
+import 'package:image_preview/src/video_view.dart';
 import 'package:photo_view/photo_view.dart';
+
+typedef OnLongPressHandler(BuildContext context, PreviewData data);
 
 class ImageGalleryPage extends StatefulWidget {
   ImageGalleryPage({
@@ -14,6 +17,7 @@ class ImageGalleryPage extends StatefulWidget {
     this.onPageChanged,
     this.tipWidget,
     this.disableOnTap = false,
+    this.onPlayControllerListener,
   }) : super(key: key) {}
 
   @override
@@ -34,27 +38,32 @@ class ImageGalleryPage extends StatefulWidget {
   final BuildTipWidget? tipWidget;
 
   final bool disableOnTap;
+
+  final OnPlayControllerListener? onPlayControllerListener;
 }
 
 class _ImageGalleryPageState extends State<ImageGalleryPage> {
   late PageController _controller;
   late bool _locked;
-  var firstOpen = true;
-  var currentPage = -1;
+  var _firstOpen = true;
+  var _currentPage = -1;
+
+  // 是否视频正在播放中
+  bool _isPlaying = false;
 
   @override
   void initState() {
     _controller = PageController(initialPage: widget.initialIndex);
     _locked = false;
-    currentPage = widget.initialIndex;
+    _currentPage = widget.initialIndex;
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      handlerPageChanged(widget.initialIndex);
+      _handlerPageChanged(widget.initialIndex);
     });
   }
 
-  void scaleStateChangedCallback(PhotoViewScaleState scaleState) {
+  void _scaleStateChangedCallback(PhotoViewScaleState scaleState) {
     setState(() {
       _locked = (scaleState == PhotoViewScaleState.initial ||
               scaleState == PhotoViewScaleState.zoomedOut)
@@ -75,7 +84,7 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
   Widget build(BuildContext context) {
     Widget? tipTemp = null;
     if (widget.tipWidget != null) {
-      tipTemp = widget.tipWidget!(currentPage);
+      tipTemp = widget.tipWidget!(_currentPage);
     }
     return Scaffold(
       body: Container(
@@ -98,14 +107,14 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
                 itemCount: itemCount,
                 onPageChanged: (index) {
                   // print(index);
-                  handlerPageChanged(index);
+                  _handlerPageChanged(index);
                 },
                 itemBuilder: (BuildContext context, int index) {
                   final widget = _buildItem(
                     context,
                     index,
                   );
-                  firstOpen = false;
+                  _firstOpen = false;
                   return widget;
                 },
                 physics: _locked
@@ -114,7 +123,7 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
               ),
             ),
             if (tipTemp != null) tipTemp,
-            if (widget.indicator)
+            if (widget.indicator && !_isPlaying)
               Align(
                 alignment: Alignment.center,
                 child: Padding(
@@ -123,7 +132,7 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      currentPage > 0
+                      _currentPage > 0
                           ? IndicatorWidget(
                               icon: Icons.chevron_left_outlined,
                               onTap: () {
@@ -134,7 +143,7 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
                               },
                             )
                           : const SizedBox(),
-                      currentPage < itemCount - 1
+                      _currentPage < itemCount - 1
                           ? IndicatorWidget(
                               icon: Icons.chevron_right_outlined,
                               onTap: () {
@@ -155,15 +164,16 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
     );
   }
 
-  void handlerPageChanged(int index) async {
-    if (currentPage != index) {
+  void _handlerPageChanged(int index) async {
+    if (_currentPage != index) {
       setState(() {
-        currentPage = index;
+        _currentPage = index;
       });
-      debugPrint('currentPage $currentPage');
+      debugPrint('currentPage $_currentPage');
     }
+    _isPlaying = false;
     if (widget.onPageChanged == null) return;
-    widget.onPageChanged!(currentPage);
+    widget.onPageChanged!(_currentPage);
   }
 
   Widget _buildItem(
@@ -176,10 +186,24 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
         child: ImagePreview(
           data: preview.image!,
           heroTag: preview.heroTag ?? '',
-          open: firstOpen && index == widget.initialIndex,
-          scaleStateChangedCallback: scaleStateChangedCallback,
+          open: _firstOpen && index == widget.initialIndex,
+          scaleStateChangedCallback: _scaleStateChangedCallback,
           onLongPressHandler: widget.onLongPressHandler,
         ),
+      );
+    } else if (preview.type == Type.video) {
+      return VideoPreview(
+        data: preview.video!,
+        heroTag: preview.heroTag ?? '',
+        open: _firstOpen && index == widget.initialIndex,
+        onLongPressHandler: widget.onLongPressHandler,
+        onPlayControllerListener: widget.onPlayControllerListener,
+        onPlayStateListener: (isPlaying) {
+          debugPrint('isPlaying  $isPlaying');
+          setState(() {
+            _isPlaying = isPlaying;
+          });
+        },
       );
     } else {
       return SizedBox();

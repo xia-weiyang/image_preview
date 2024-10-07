@@ -1,3 +1,5 @@
+## 1.3.0
+* Support video.
 ## 1.2.5
 * Fix ThumbnailView bug.
 ## 1.2.4

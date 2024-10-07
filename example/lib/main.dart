@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_preview/preview.dart';
@@ -39,7 +41,11 @@ class _MyHomePageState extends State<MyHomePage> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       String path = '';
       if (!kIsWeb) {
-        path = ((await getExternalCacheDirectories())![0]).path;
+        if (Platform.isAndroid) {
+          path = ((await getExternalCacheDirectories())![0]).path;
+        } else {
+          path = (await getTemporaryDirectory()).path;
+        }
       }
       final temp = [
         PreviewData(
@@ -48,17 +54,18 @@ class _MyHomePageState extends State<MyHomePage> {
           image: ImageData(
             url: 'https://xia-weiyang.onrender.com/image/1.jpg',
             path: '$path/image/1.jpg',
-            thumbnailUrl: 'https://xia-weiyang.onrender.com/image/1_thumbnail.jpg',
+            thumbnailUrl:
+                'https://xia-weiyang.onrender.com/image/1_thumbnail.jpg',
             thumbnailPath: '$path/image/1_thumbnail.jpg',
           ),
         ),
         PreviewData(
-          type: Type.image,
+          type: Type.video,
           heroTag: 'c53764c82a1940',
-          image: ImageData(
-            thumbnailUrl: 'https://xia-weiyang.onrender.com/image/2.jpg',
-            thumbnailPath: '$path/image/2.jpg',
-          ),
+          video: VideoData(
+              coverUrl: 'https://xia-weiyang.onrender.com/image/2.jpg',
+              coverPath: '$path/image/2.jpg',
+              url: 'https://xia-weiyang.onrender.com/video/trailer.mp4'),
         ),
         PreviewData(
           type: Type.image,
@@ -98,6 +105,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     Navigator.of(context),
                     data: dataList,
                     index: i,
+                    indicator: Platform.isMacOS ||
+                        Platform.isWindows ||
+                        Platform.isLinux,
                     tipWidget: (currentIndex) {
                       return Align(
                         alignment: Alignment.topRight,

@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:image_preview/preview_data.dart';
 import 'package:image_preview/src/image_preview_view.dart';
 import 'package:image_preview/src/preview_gallery.dart';
-import 'package:image_preview/src/image_view.dart';
 import 'package:image_preview/src/page_route.dart';
+import 'package:image_preview/src/video_preview_view.dart';
+import 'package:video_player/video_player.dart';
 
 class PreviewThumbnail extends StatefulWidget {
   const PreviewThumbnail({
@@ -35,6 +36,11 @@ class PreviewThumbnailState extends State<PreviewThumbnail> {
         data: widget.data.image!,
         fit: widget.fit,
       );
+    } else if (widget.data.type == Type.video) {
+      child = VideoPreviewCoverWidget(
+        data: widget.data.video!,
+        fit: widget.fit,
+      );
     } else {
       child = Container();
     }
@@ -53,18 +59,22 @@ class PreviewThumbnailState extends State<PreviewThumbnail> {
 void openPreviewPage(
   NavigatorState navigatorState, {
   required PreviewData data,
+  Key? key,
   BuildTipWidget? tipWidget,
   bool disableOnTap = false,
   OnLongPressHandler? onLongPressHandler,
   OnPageChanged? onPageChanged,
+  OnPlayControllerListener? onPlayControllerListener,
 }) {
   navigatorState.push(FadePageRoute<void>(builder: (BuildContext context) {
     return ImageGalleryPage(
+      key: key,
       data: [data],
       tipWidget: tipWidget,
       disableOnTap: disableOnTap,
       onLongPressHandler: onLongPressHandler,
       onPageChanged: onPageChanged,
+      onPlayControllerListener: onPlayControllerListener,
     );
   }));
 }
@@ -76,22 +86,26 @@ void openPreviewPage(
 void openPreviewPages(
   NavigatorState navigatorState, {
   required List<PreviewData> data,
+  Key? key,
   int index = 0,
   bool indicator = false,
   BuildTipWidget? tipWidget,
   bool disableOnTap = false,
   OnLongPressHandler? onLongPressHandler,
   OnPageChanged? onPageChanged,
+  OnPlayControllerListener? onPlayControllerListener,
 }) {
   navigatorState.push(FadePageRoute<void>(builder: (BuildContext context) {
     return ImageGalleryPage(
       data: data,
+      key: key,
       initialIndex: index,
       indicator: indicator,
       tipWidget: tipWidget,
       disableOnTap: disableOnTap,
       onLongPressHandler: onLongPressHandler,
       onPageChanged: onPageChanged,
+      onPlayControllerListener: onPlayControllerListener,
     );
   }));
 }
@@ -101,3 +115,5 @@ typedef void OnPageChanged(int index);
 
 // 构建TipWidget
 typedef Widget? BuildTipWidget(int index);
+
+typedef OnPlayControllerListener(VideoPlayerController controller);
