@@ -1,3 +1,5 @@
+## 1.3.1
+* Fix zoom in animation bug.
 ## 1.3.0
 * Support video.
 ## 1.2.5

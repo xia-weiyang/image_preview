@@ -30,7 +30,8 @@ dependencies:
   flutter:
     sdk: flutter
 
-  path_provider: ^2.0.15
+  path_provider: ^2.1.4
+  win32: ^5.7.0
   image_preview:
     path: ../
 

@@ -51,6 +51,9 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
   // 是否视频正在播放中
   bool _isPlaying = false;
 
+  Widget? _tempWidget;
+  int? _tempIndex;
+
   @override
   void initState() {
     _controller = PageController(initialPage: widget.initialIndex);
@@ -110,11 +113,17 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
                   _handlerPageChanged(index);
                 },
                 itemBuilder: (BuildContext context, int index) {
+                  if (index == _tempIndex && _tempWidget != null) {
+                    return _tempWidget!;
+                  }
+
                   final widget = _buildItem(
                     context,
                     index,
                   );
                   _firstOpen = false;
+                  _tempIndex = index;
+                  _tempWidget = widget;
                   return widget;
                 },
                 physics: _locked
