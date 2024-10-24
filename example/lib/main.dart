@@ -52,10 +52,10 @@ class _MyHomePageState extends State<MyHomePage> {
           type: Type.image,
           heroTag: 'b53764c82a1940',
           image: ImageData(
-            url: 'https://xia-weiyang.onrender.com/image/1.jpg',
+            url: 'https://xia-weiyang.github.io/image/1.jpg',
             path: '$path/image/1.jpg',
             thumbnailUrl:
-                'https://xia-weiyang.onrender.com/image/1_thumbnail.jpg',
+                'https://xia-weiyang.github.io/image/1_thumbnail.jpg',
             thumbnailPath: '$path/image/1_thumbnail.jpg',
           ),
         ),
@@ -63,17 +63,17 @@ class _MyHomePageState extends State<MyHomePage> {
           type: Type.video,
           heroTag: 'c53764c82a1940',
           video: VideoData(
-              coverUrl: 'https://xia-weiyang.onrender.com/image/2.jpg',
+              coverUrl: 'https://xia-weiyang.github.io/image/2.jpg',
               coverPath: '$path/image/2.jpg',
-              url: 'https://xia-weiyang.onrender.com/video/trailer.mp4'),
+              url: 'https://xia-weiyang.github.io/video/trailer.mp4'),
         ),
         PreviewData(
           type: Type.image,
           heroTag: '112cc8a34e13',
           image: ImageData(
-            url: 'https://xia-weiyang.onrender.com/image/3.jpg',
+            url: 'https://xia-weiyang.github.io/image/3.jpg',
             path: '$path/image/3.jpg',
-            thumbnailUrl: 'https://xia-weiyang.onrender.com/image/3.jpg',
+            thumbnailUrl: 'https://xia-weiyang.github.io/image/3.jpg',
             thumbnailPath: '$path/image/3.jpg',
           ),
         ),
@@ -105,7 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     Navigator.of(context),
                     data: dataList,
                     index: i,
-                    indicator: Platform.isMacOS ||
+                    indicator: kIsWeb || Platform.isMacOS ||
                         Platform.isWindows ||
                         Platform.isLinux,
                     tipWidget: (currentIndex) {

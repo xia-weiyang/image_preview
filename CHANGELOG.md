@@ -1,3 +1,5 @@
+## 1.3.2
+* Fix Web video bug.
 ## 1.3.1
 * Fix zoom in animation bug.
 ## 1.3.0

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_preview/preview.dart';
 import 'package:image_preview/preview_data.dart';
@@ -39,11 +40,12 @@ class VideoPreviewState extends State<VideoPreview> {
   double _position = 0;
   var _userSlider = false; // 用户在触发进度条
   var _showTime = false;
+  var _playing = false;
 
   @override
   void initState() {
     _open = widget.open;
-    if (Platform.isWindows || Platform.isLinux) {
+    if (!kIsWeb && (Platform.isWindows || Platform.isLinux)) {
       _open = false;
     }
     if (widget.data.coverUrl != null && widget.data.coverUrl!.isNotEmpty) {}
@@ -76,9 +78,6 @@ class VideoPreviewState extends State<VideoPreview> {
           ? () {
               if (_controller != null && _controller!.value.isPlaying) {
                 _controller!.pause();
-                if (widget.onPlayStateListener != null) {
-                  widget.onPlayStateListener!(false);
-                }
                 setState(() {
                   _showTime = true;
                 });
@@ -109,17 +108,22 @@ class VideoPreviewState extends State<VideoPreview> {
               ),
             ),
           if ((_controller == null || !_controller!.value.isInitialized) &&
-              _existCoverFile())
+              (kIsWeb || _existCoverFile()))
             Align(
               alignment: Alignment.center,
               child: Hero(
                 child: Container(
                   width: double.infinity,
-                  child: Image(
-                    image: FileImage(
-                        File.fromUri(Uri.file(widget.data.coverPath!))),
-                    fit: BoxFit.contain,
-                  ),
+                  child: kIsWeb
+                      ? Image(
+                          image: NetworkImage(widget.data.coverUrl ?? ''),
+                          fit: BoxFit.contain,
+                        )
+                      : Image(
+                          image: FileImage(
+                              File.fromUri(Uri.file(widget.data.coverPath!))),
+                          fit: BoxFit.contain,
+                        ),
                 ),
                 tag: widget.heroTag,
               ),
@@ -129,7 +133,7 @@ class VideoPreviewState extends State<VideoPreview> {
                   _controller!.value.isBuffering))
             Align(
               alignment: Alignment.center,
-              child: Platform.isIOS || Platform.isMacOS
+              child: !kIsWeb && (Platform.isIOS || Platform.isMacOS)
                   ? const CupertinoActivityIndicator()
                   : const CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
@@ -243,9 +247,6 @@ class VideoPreviewState extends State<VideoPreview> {
                 }
                 if (!_controller!.value.isPlaying) {
                   _controller!.play();
-                  if (widget.onPlayStateListener != null) {
-                    widget.onPlayStateListener!(true);
-                  }
                   setState(() {
                     _showTime = false;
                   });
@@ -265,20 +266,18 @@ class VideoPreviewState extends State<VideoPreview> {
   }
 
   void _preparePlay() {
-    if (Platform.isLinux || Platform.isWindows) {
+    if (!kIsWeb && (Platform.isLinux || Platform.isWindows)) {
       _launchURL(widget.data.url!);
       return;
     }
 
     if (_controller == null) {
       debugPrint('play:${widget.data.url}');
+      _playing = false;
       _controller =
           VideoPlayerController.networkUrl(Uri.parse(widget.data.url!))
             ..initialize().then((_) {
               _controller?.play();
-              if (widget.onPlayStateListener != null) {
-                widget.onPlayStateListener!(true);
-              }
               setState(() {});
             });
       _controller!.addListener(() {
@@ -291,8 +290,15 @@ class VideoPreviewState extends State<VideoPreview> {
           debugPrint(
               'error: ${_controller!.value.errorDescription ?? 'Unknown error'}');
         }
+        if (_controller!.value.isPlaying !=_playing){
+          _playing = _controller!.value.isPlaying;
+          print('_playing ${_playing}');
+          if (widget.onPlayStateListener != null) {
+            widget.onPlayStateListener!(_playing);
+          }
+        }
       });
-      if(widget.onPlayControllerListener != null){
+      if (widget.onPlayControllerListener != null) {
         widget.onPlayControllerListener!(_controller!);
       }
     }
