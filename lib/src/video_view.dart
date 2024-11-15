@@ -108,7 +108,7 @@ class VideoPreviewState extends State<VideoPreview> {
               ),
             ),
           if ((_controller == null || !_controller!.value.isInitialized) &&
-              (kIsWeb || _existCoverFile()))
+              (kIsWeb || widget.data.coverData != null || _existCoverFile()))
             Align(
               alignment: Alignment.center,
               child: Hero(
@@ -119,11 +119,14 @@ class VideoPreviewState extends State<VideoPreview> {
                           image: NetworkImage(widget.data.coverUrl ?? ''),
                           fit: BoxFit.contain,
                         )
-                      : Image(
-                          image: FileImage(
-                              File.fromUri(Uri.file(widget.data.coverPath!))),
-                          fit: BoxFit.contain,
-                        ),
+                      : widget.data.coverData != null
+                          ? Image.memory(widget.data.coverData!,
+                              fit: BoxFit.contain)
+                          : Image(
+                              image: FileImage(File.fromUri(
+                                  Uri.file(widget.data.coverPath!))),
+                              fit: BoxFit.contain,
+                            ),
                 ),
                 tag: widget.heroTag,
               ),
@@ -290,7 +293,7 @@ class VideoPreviewState extends State<VideoPreview> {
           debugPrint(
               'error: ${_controller!.value.errorDescription ?? 'Unknown error'}');
         }
-        if (_controller!.value.isPlaying !=_playing){
+        if (_controller!.value.isPlaying != _playing) {
           _playing = _controller!.value.isPlaying;
           print('_playing ${_playing}');
           if (widget.onPlayStateListener != null) {

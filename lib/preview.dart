@@ -15,12 +15,16 @@ class PreviewThumbnail extends StatefulWidget {
     this.fit = BoxFit.cover,
     this.onTap,
     this.onLongTap,
+    this.videoShowPlayIcon = true,
+    this.videoPlayIconSize = 50,
   });
 
   final PreviewData data;
   final BoxFit fit;
   final VoidCallback? onTap;
   final VoidCallback? onLongTap;
+  final bool videoShowPlayIcon;
+  final double videoPlayIconSize;
 
   @override
   State<StatefulWidget> createState() => PreviewThumbnailState();
@@ -40,6 +44,8 @@ class PreviewThumbnailState extends State<PreviewThumbnail> {
       child = VideoPreviewCoverWidget(
         data: widget.data.video!,
         fit: widget.fit,
+        showPlayIcon: widget.videoShowPlayIcon,
+        playIconSize: widget.videoPlayIconSize,
       );
     } else {
       child = Container();

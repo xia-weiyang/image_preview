@@ -9,12 +9,14 @@ class VideoPreviewCoverWidget extends StatefulWidget {
     super.key,
     required this.data,
     required this.fit,
-    this.playIconSize = 50,
+    required this.playIconSize,
+    required this.showPlayIcon,
   });
 
   final VideoData data;
   final BoxFit fit;
   final double playIconSize;
+  final bool showPlayIcon;
 
   @override
   State<StatefulWidget> createState() => _VideoPreviewCoverWidgetState();
@@ -43,6 +45,13 @@ class _VideoPreviewCoverWidgetState extends State<VideoPreviewCoverWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.data.coverData != null) {
+      return buildPlayIconWidget(Image.memory(
+        widget.data.coverData!,
+        fit: widget.fit,
+      ));
+    }
+
     if (kIsWeb) {
       if (widget.data.coverUrl == null || widget.data.coverUrl!.isEmpty) {
         return buildError();
@@ -88,16 +97,17 @@ class _VideoPreviewCoverWidgetState extends State<VideoPreviewCoverWidget> {
           height: double.infinity,
           child: child,
         ),
-        Center(
-          child: Opacity(
-            opacity: 0.5,
-            child: Icon(
-              Icons.play_circle_outline,
-              color: Color(0xFFEEEEEE),
-              size: widget.playIconSize,
+        if (widget.showPlayIcon)
+          Center(
+            child: Opacity(
+              opacity: 0.5,
+              child: Icon(
+                Icons.play_circle_outline,
+                color: Color(0xFFEEEEEE),
+                size: widget.playIconSize,
+              ),
             ),
           ),
-        ),
       ],
     );
   }

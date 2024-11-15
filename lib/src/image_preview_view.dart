@@ -42,6 +42,13 @@ class _ImagePreviewThumbnailViewState extends State<ImagePreviewThumbnailView> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.data.thumbnailData != null) {
+      return Image.memory(
+        widget.data.thumbnailData!,
+        fit: widget.fit,
+      );
+    }
+
     if (kIsWeb) {
       if (widget.data.thumbnailUrl == null ||
           widget.data.thumbnailUrl!.isEmpty) {

@@ -1,3 +1,5 @@
+## 1.3.3
+* Add Uint8List data param.
 ## 1.3.2
 * Fix Web video bug.
 ## 1.3.1

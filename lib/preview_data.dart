@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 /// 类型
 enum Type { image, video }
@@ -46,6 +47,7 @@ class ImageData {
     this.url,
     this.thumbnailUrl,
     this.thumbnailPath,
+    this.thumbnailData,
   });
 
   final String? url;
@@ -58,6 +60,9 @@ class ImageData {
 
   /// 缩略图地址
   final String? thumbnailUrl;
+
+  /// 缩略图数据
+  final Uint8List? thumbnailData;
 
   Map<String, dynamic> toJson() {
     return {
@@ -86,6 +91,7 @@ class VideoData {
   const VideoData({
     this.coverPath,
     this.coverUrl,
+    this.coverData,
     this.url,
   });
 
@@ -94,6 +100,8 @@ class VideoData {
 
   /// 视频封面地址
   final String? coverUrl;
+
+  final Uint8List? coverData;
 
   /// 视频地址
   final String? url;

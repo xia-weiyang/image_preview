@@ -85,6 +85,7 @@ class _ImagePreviewState extends State<ImagePreview> {
                   return ImageLoading(
                     tag: widget.heroTag,
                     showLoading: false,
+                    data: widget.data.thumbnailData,
                     path: _existThumbnailFile()
                         ? widget.data.thumbnailPath
                         : null,
@@ -107,6 +108,7 @@ class _ImagePreviewState extends State<ImagePreview> {
               } else {
                 return ImageLoading(
                   tag: widget.heroTag,
+                  data: widget.data.thumbnailData,
                   path:
                       _existThumbnailFile() ? widget.data.thumbnailPath : null,
                 );
@@ -149,23 +151,36 @@ class _ImagePreviewState extends State<ImagePreview> {
   }
 
   Widget _buildImageWidgetPreWeb() {
-    return _buildImageWidget(
-      imageProvide!,
-      imageProvideThumbnail == null ? null : imageProvideThumbnail,
-    );
+    Widget? image = null;
+    if (widget.data.thumbnailData != null) {
+      image = Image.memory(widget.data.thumbnailData!, fit: BoxFit.contain);
+    } else if (imageProvideThumbnail != null) {
+      image = Image(
+        image: FileImage(File.fromUri(Uri.file(widget.data.thumbnailPath!))),
+        fit: BoxFit.contain,
+      );
+    }
+
+    return _buildImageWidget(imageProvide!, image);
   }
 
   Widget _buildImageWidgetPre() {
+    Widget? image = null;
+    if (widget.data.thumbnailData != null) {
+      image = Image.memory(widget.data.thumbnailData!, fit: BoxFit.contain);
+    } else if (_existThumbnailFile()) {
+      image = Image(
+        image: FileImage(File.fromUri(Uri.file(widget.data.thumbnailPath!))),
+        fit: BoxFit.contain,
+      );
+    }
     return _buildImageWidget(
       FileImage(File.fromUri(Uri.file(widget.data.path!))),
-      _existThumbnailFile()
-          ? FileImage(File.fromUri(Uri.file(widget.data.thumbnailPath!)))
-          : null,
+      image,
     );
   }
 
-  Widget _buildImageWidget(ImageProvider imageProvide,
-      [ImageProvider? loadImageProvide]) {
+  Widget _buildImageWidget(ImageProvider imageProvide, [Widget? loadImage]) {
     return GestureDetector(
       onLongPress: () {
         if (widget.onLongPressHandler != null) {
@@ -179,16 +194,15 @@ class _ImagePreviewState extends State<ImagePreview> {
       },
       child: PhotoView(
         imageProvider: imageProvide,
-        loadingBuilder: loadImageProvide == null
-            ? null
+        loadingBuilder: loadImage == null
+            ? (_, event) {
+                return ImageLoading();
+              }
             : (_, event) {
                 return Center(
                   child: Container(
                     width: double.infinity,
-                    child: Image(
-                      image: loadImageProvide,
-                      fit: BoxFit.contain,
-                    ),
+                    child: loadImage,
                   ),
                 );
               },
@@ -241,14 +255,16 @@ class _ImagePreviewState extends State<ImagePreview> {
 
 class ImageLoading extends StatelessWidget {
   final String? path;
-  final String tag;
+  final Uint8List? data;
+  final String? tag;
   final bool showLoading;
 
   const ImageLoading({
     Key? key,
     this.path,
+    this.data,
     this.showLoading = true,
-    required this.tag,
+    this.tag,
   }) : super(key: key);
 
   @override
@@ -262,7 +278,17 @@ class ImageLoading extends StatelessWidget {
             ),
     ));
 
-    return path == null || path!.isEmpty
+    Widget? image = null;
+    if (data != null) {
+      image = Image.memory(data!, fit: BoxFit.contain);
+    } else if (path != null || path!.isNotEmpty) {
+      image = Image(
+        image: FileImage(File.fromUri(Uri.file(path!))),
+        fit: BoxFit.contain,
+      );
+    }
+
+    return image == null
         ? widget
         : Builder(builder: (context) {
             final child = Align(
@@ -270,12 +296,9 @@ class ImageLoading extends StatelessWidget {
               child: Hero(
                 child: Container(
                   width: double.infinity,
-                  child: Image(
-                    image: FileImage(File.fromUri(Uri.file(path!))),
-                    fit: BoxFit.contain,
-                  ),
+                  child: image,
                 ),
-                tag: tag,
+                tag: tag ?? "",
               ),
             );
 
