@@ -74,12 +74,17 @@ class VideoPreviewState extends State<VideoPreview> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: true,
-      onPopInvokedWithResult: (_, __) {
+      onPopInvoked: (_) {
         setState(() {
           _startPop = true;
         });
       },
+      canPop: true,
+      // onPopInvokedWithResult: (_, __) {
+      //   setState(() {
+      //     _startPop = true;
+      //   });
+      // },
       child: GestureDetector(
         behavior: HitTestBehavior.deferToChild,
         onTap: _controller != null && _controller!.value.isPlaying
@@ -115,7 +120,7 @@ class VideoPreviewState extends State<VideoPreview> {
                   ),
                 ),
               ),
-            if ((_controller == null || !_controller!.value.isInitialized) &&
+            if ((_controller == null || !_controller!.value.isInitialized || _controller!.value.position.inSeconds == 0) &&
                 (kIsWeb || widget.data.coverData != null || _existCoverFile()))
               Align(
                 alignment: Alignment.center,
@@ -292,14 +297,14 @@ class VideoPreviewState extends State<VideoPreview> {
       if (widget.data.url!.startsWith("http")) {
         _controller =
             VideoPlayerController.networkUrl(Uri.parse(widget.data.url!))
-              ..initialize().then((_) {
-                _controller?.play();
+              ..initialize().then((_) async {
+                await _controller?.play();
                 _controllerListener();
               });
       } else {
         _controller = VideoPlayerController.file(File(widget.data.url!))
-          ..initialize().then((_) {
-            _controller?.play();
+          ..initialize().then((_) async {
+            await _controller?.play();
             _controllerListener();
           });
       }

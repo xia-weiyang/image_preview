@@ -1,3 +1,5 @@
+## 1.3.5
+* Fix bug.
 ## 1.3.4
 * Support local video file.
 ## 1.3.3
