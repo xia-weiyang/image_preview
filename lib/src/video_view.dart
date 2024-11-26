@@ -122,7 +122,9 @@ class VideoPreviewState extends State<VideoPreview> {
                   ),
                 ),
               ),
-            if ((_controller == null || !_controller!.value.isInitialized || _controller!.value.position.inSeconds == 0) &&
+            if ((_controller == null ||
+                    !_controller!.value.isInitialized ||
+                    _controller!.value.position.inSeconds == 0) &&
                 (kIsWeb || widget.data.coverData != null || _existCoverFile()))
               Align(
                 alignment: Alignment.center,
@@ -148,7 +150,8 @@ class VideoPreviewState extends State<VideoPreview> {
               ),
             if (_controller != null &&
                 (!_controller!.value.isInitialized ||
-                    _controller!.value.isBuffering))
+                    _controller!.value.isBuffering) &&
+                !_controller!.value.isCompleted)
               Align(
                 alignment: Alignment.center,
                 child: !kIsWeb && (Platform.isIOS || Platform.isMacOS)
@@ -324,8 +327,11 @@ class VideoPreviewState extends State<VideoPreview> {
         });
       }
       if (_controller!.value.hasError) {
-        debugPrint(
-            'error: ${_controller!.value.errorDescription ?? 'Unknown error'}');
+        final error = _controller!.value.errorDescription ?? 'Unknown error';
+        debugPrint('error: $error');
+        if (widget.onPlayError != null) {
+          widget.onPlayError!(error);
+        }
       }
       if (_controller!.value.isPlaying != _playing) {
         _playing = _controller!.value.isPlaying;
