@@ -18,6 +18,7 @@ class ImageGalleryPage extends StatefulWidget {
     this.tipWidget,
     this.disableOnTap = false,
     this.onPlayControllerListener,
+    this.onPlayError,
   }) : super(key: key) {}
 
   @override
@@ -40,6 +41,8 @@ class ImageGalleryPage extends StatefulWidget {
   final bool disableOnTap;
 
   final OnPlayControllerListener? onPlayControllerListener;
+
+  final OnPlayError? onPlayError;
 }
 
 class _ImageGalleryPageState extends State<ImageGalleryPage> {
@@ -207,6 +210,7 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
         open: _firstOpen && index == widget.initialIndex,
         onLongPressHandler: widget.onLongPressHandler,
         onPlayControllerListener: widget.onPlayControllerListener,
+        onPlayError: widget.onPlayError,
         onPlayStateListener: (isPlaying) {
           debugPrint('isPlaying  $isPlaying');
           setState(() {

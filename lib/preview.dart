@@ -70,6 +70,7 @@ void openPreviewPage(
   bool disableOnTap = false,
   OnLongPressHandler? onLongPressHandler,
   OnPageChanged? onPageChanged,
+  OnPlayError? onPlayError,
   OnPlayControllerListener? onPlayControllerListener,
 }) {
   navigatorState.push(FadePageRoute<void>(builder: (BuildContext context) {
@@ -80,6 +81,7 @@ void openPreviewPage(
       disableOnTap: disableOnTap,
       onLongPressHandler: onLongPressHandler,
       onPageChanged: onPageChanged,
+      onPlayError: onPlayError,
       onPlayControllerListener: onPlayControllerListener,
     );
   }));
@@ -99,6 +101,7 @@ void openPreviewPages(
   bool disableOnTap = false,
   OnLongPressHandler? onLongPressHandler,
   OnPageChanged? onPageChanged,
+  OnPlayError? onPlayError,
   OnPlayControllerListener? onPlayControllerListener,
 }) {
   navigatorState.push(FadePageRoute<void>(builder: (BuildContext context) {
@@ -111,6 +114,7 @@ void openPreviewPages(
       disableOnTap: disableOnTap,
       onLongPressHandler: onLongPressHandler,
       onPageChanged: onPageChanged,
+      onPlayError: onPlayError,
       onPlayControllerListener: onPlayControllerListener,
     );
   }));
@@ -123,3 +127,5 @@ typedef void OnPageChanged(int index);
 typedef Widget? BuildTipWidget(int index);
 
 typedef OnPlayControllerListener(VideoPlayerController controller);
+
+typedef OnPlayError(String msg);
