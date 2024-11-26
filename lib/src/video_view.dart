@@ -43,6 +43,7 @@ class VideoPreviewState extends State<VideoPreview> {
   var _userSlider = false; // 用户在触发进度条
   var _showTime = false;
   var _playing = false;
+  var _startPop = false;
 
   @override
   void initState() {
@@ -74,199 +75,214 @@ class VideoPreviewState extends State<VideoPreview> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.deferToChild,
-      onTap: _controller != null && _controller!.value.isPlaying
-          ? () {
-              if (_controller != null && _controller!.value.isPlaying) {
-                _controller!.pause();
-                setState(() {
-                  _showTime = true;
-                });
-              }
-            }
-          : null,
-      onLongPress: () {
-        if (widget.onLongPressHandler != null) {
-          widget.onLongPressHandler!(
-              context,
-              PreviewData(
-                type: Type.video,
-                video: widget.data,
-              ));
-        }
+    return PopScope(
+      onPopInvoked: (_) {
+        setState(() {
+          _startPop = true;
+        });
       },
-      child: Stack(
-        children: [
-          if (_controller != null && _controller!.value.isInitialized)
-            Align(
-              alignment: Alignment.center,
-              child: AspectRatio(
-                aspectRatio: _controller!.value.aspectRatio,
+      canPop: true,
+      // onPopInvokedWithResult: (_, __) {
+      //   setState(() {
+      //     _startPop = true;
+      //   });
+      // },
+      child: GestureDetector(
+        behavior: HitTestBehavior.deferToChild,
+        onTap: _controller != null && _controller!.value.isPlaying
+            ? () {
+                if (_controller != null && _controller!.value.isPlaying) {
+                  _controller!.pause();
+                  setState(() {
+                    _showTime = true;
+                  });
+                }
+              }
+            : null,
+        onLongPress: () {
+          if (widget.onLongPressHandler != null) {
+            widget.onLongPressHandler!(
+                context,
+                PreviewData(
+                  type: Type.video,
+                  video: widget.data,
+                ));
+          }
+        },
+        child: Stack(
+          children: [
+            if (_controller != null && _controller!.value.isInitialized)
+              Align(
+                alignment: Alignment.center,
+                child: AspectRatio(
+                  aspectRatio: _controller!.value.aspectRatio,
+                  child: Hero(
+                    child: VideoPlayer(_controller!),
+                    tag: widget.heroTag,
+                  ),
+                ),
+              ),
+            if ((_controller == null || !_controller!.value.isInitialized || _controller!.value.position.inSeconds == 0) &&
+                (kIsWeb || widget.data.coverData != null || _existCoverFile()))
+              Align(
+                alignment: Alignment.center,
                 child: Hero(
-                  child: VideoPlayer(_controller!),
+                  child: Container(
+                    width: double.infinity,
+                    child: kIsWeb
+                        ? Image(
+                            image: NetworkImage(widget.data.coverUrl ?? ''),
+                            fit: BoxFit.contain,
+                          )
+                        : widget.data.coverData != null
+                            ? Image.memory(widget.data.coverData!,
+                                fit: BoxFit.contain)
+                            : Image(
+                                image: FileImage(File.fromUri(
+                                    Uri.file(widget.data.coverPath!))),
+                                fit: BoxFit.contain,
+                              ),
+                  ),
                   tag: widget.heroTag,
                 ),
               ),
-            ),
-          if ((_controller == null || !_controller!.value.isInitialized) &&
-              (kIsWeb || widget.data.coverData != null || _existCoverFile()))
-            Align(
-              alignment: Alignment.center,
-              child: Hero(
-                child: Container(
-                  width: double.infinity,
-                  child: kIsWeb
-                      ? Image(
-                          image: NetworkImage(widget.data.coverUrl ?? ''),
-                          fit: BoxFit.contain,
-                        )
-                      : widget.data.coverData != null
-                          ? Image.memory(widget.data.coverData!,
-                              fit: BoxFit.contain)
-                          : Image(
-                              image: FileImage(File.fromUri(
-                                  Uri.file(widget.data.coverPath!))),
-                              fit: BoxFit.contain,
-                            ),
-                ),
-                tag: widget.heroTag,
-              ),
-            ),
-          if (_controller != null &&
-              (!_controller!.value.isInitialized ||
-                  _controller!.value.isBuffering)
-              && !_controller!.value.isCompleted)
-            Align(
-              alignment: Alignment.center,
-              child: !kIsWeb && (Platform.isIOS || Platform.isMacOS)
-                  ? const CupertinoActivityIndicator()
-                  : const CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
-                    ),
-            ),
-          if (_controller != null && _controller!.value.isInitialized)
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                    16, 0, 16, MediaQuery.of(context).padding.bottom + 8),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: 20,
-                    maxWidth: 600,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 60 * MediaQuery.of(context).textScaler.scale(1),
-                        child: _showTime
-                            ? Center(
-                                child: Text(
-                                  _formatDuration(
-                                      Duration(seconds: _position.toInt())),
-                                  style: TextStyle(
-                                      color: Colors.grey.shade600,
-                                      fontSize: 11),
-                                ),
-                              )
-                            : null,
+            if (_controller != null &&
+                (!_controller!.value.isInitialized ||
+                    _controller!.value.isBuffering))
+              Align(
+                alignment: Alignment.center,
+                child: !kIsWeb && (Platform.isIOS || Platform.isMacOS)
+                    ? const CupertinoActivityIndicator()
+                    : const CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
                       ),
-                      Expanded(
-                        child: Container(
-                          // color: Colors.red,
-                          child: SliderTheme(
-                            data: SliderTheme.of(context).copyWith(
-                              overlayShape: SliderComponentShape.noThumb,
-                              trackHeight: 1,
-                              inactiveTrackColor: Colors.grey.shade800,
-                              activeTrackColor: Colors.grey.shade600,
-                              thumbColor: Colors.grey.shade600,
-                              thumbShape:
-                                  RoundSliderThumbShape(enabledThumbRadius: 5),
-                            ),
-                            child: Slider(
-                              value: _position,
-                              min: 0,
-                              max: _controller!.value.duration.inSeconds
-                                  .toDouble(),
-                              onChanged: (value) {
-                                debugPrint('onChanged: $value');
-                                setState(() {
-                                  _position = value;
-                                });
-                              },
-                              onChangeStart: (value) {
-                                // debugPrint('onChangeStart: $value');
-                                _userSlider = true;
-                                setState(() {
-                                  _showTime = true;
-                                });
-                              },
-                              onChangeEnd: (value) {
-                                debugPrint('onChangeEnd: $value');
-                                _userSlider = false;
-                                // seek
-                                _controller?.seekTo(
-                                    Duration(seconds: _position.toInt()));
-                                if (_controller!.value.isPlaying) {
+              ),
+            if (_controller != null && _controller!.value.isInitialized)
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                      16, 0, 16, MediaQuery.of(context).padding.bottom + 8),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: 20,
+                      maxWidth: 600,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width:
+                              60 * MediaQuery.of(context).textScaler.scale(1),
+                          child: _showTime
+                              ? Center(
+                                  child: Text(
+                                    _formatDuration(
+                                        Duration(seconds: _position.toInt())),
+                                    style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontSize: 11),
+                                  ),
+                                )
+                              : null,
+                        ),
+                        Expanded(
+                          child: Container(
+                            // color: Colors.red,
+                            child: SliderTheme(
+                              data: SliderTheme.of(context).copyWith(
+                                overlayShape: SliderComponentShape.noThumb,
+                                trackHeight: 1,
+                                inactiveTrackColor: Colors.grey.shade800,
+                                activeTrackColor: Colors.grey.shade600,
+                                thumbColor: Colors.grey.shade600,
+                                thumbShape: RoundSliderThumbShape(
+                                    enabledThumbRadius: 5),
+                              ),
+                              child: Slider(
+                                value: _position,
+                                min: 0,
+                                max: _controller!.value.duration.inSeconds
+                                    .toDouble(),
+                                onChanged: (value) {
+                                  debugPrint('onChanged: $value');
                                   setState(() {
-                                    _showTime = false;
+                                    _position = value;
                                   });
-                                }
-                              },
+                                },
+                                onChangeStart: (value) {
+                                  // debugPrint('onChangeStart: $value');
+                                  _userSlider = true;
+                                  setState(() {
+                                    _showTime = true;
+                                  });
+                                },
+                                onChangeEnd: (value) {
+                                  debugPrint('onChangeEnd: $value');
+                                  _userSlider = false;
+                                  // seek
+                                  _controller?.seekTo(
+                                      Duration(seconds: _position.toInt()));
+                                  if (_controller!.value.isPlaying) {
+                                    setState(() {
+                                      _showTime = false;
+                                    });
+                                  }
+                                },
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      SizedBox(
-                        width: 60 * MediaQuery.of(context).textScaler.scale(1),
-                        child: _showTime
-                            ? Center(
-                                child: Text(
-                                  _formatDuration(_controller!.value.duration),
-                                  style: TextStyle(
-                                      color: Colors.grey.shade600,
-                                      fontSize: 11),
-                                ),
-                              )
-                            : null,
-                      ),
-                    ],
+                        SizedBox(
+                          width:
+                              60 * MediaQuery.of(context).textScaler.scale(1),
+                          child: _showTime
+                              ? Center(
+                                  child: Text(
+                                    _formatDuration(
+                                        _controller!.value.duration),
+                                    style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontSize: 11),
+                                  ),
+                                )
+                              : null,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          if ((_controller == null && !_open) ||
-              (_controller != null &&
-                  !_controller!.value.isPlaying &&
-                  !_controller!.value.isBuffering &&
-                  _controller!.value.isInitialized))
-            GestureDetector(
-              onTap: () {
-                if (_controller == null) {
-                  _preparePlay();
-                  setState(() {});
-                  return;
-                }
-                if (!_controller!.value.isPlaying) {
-                  _controller!.play();
-                  setState(() {
-                    _showTime = false;
-                  });
-                }
-              },
-              child: Align(
-                alignment: Alignment.center,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: buildPlayIconWidget(),
+            if ((_controller == null && !_open) ||
+                (_controller != null &&
+                    !_controller!.value.isPlaying &&
+                    !_controller!.value.isBuffering &&
+                    _controller!.value.isInitialized))
+              GestureDetector(
+                onTap: () {
+                  if (_controller == null) {
+                    _preparePlay();
+                    setState(() {});
+                    return;
+                  }
+                  if (!_controller!.value.isPlaying) {
+                    _controller!.play();
+                    setState(() {
+                      _showTime = false;
+                    });
+                  }
+                },
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: buildPlayIconWidget(),
+                  ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -280,37 +296,45 @@ class VideoPreviewState extends State<VideoPreview> {
     if (_controller == null) {
       debugPrint('play:${widget.data.url}');
       _playing = false;
-      _controller =
-          VideoPlayerController.networkUrl(Uri.parse(widget.data.url!))
-            ..initialize().then((_) {
-              _controller?.play();
-              setState(() {});
-            });
-      _controller!.addListener(() {
-        if (!_userSlider) {
-          setState(() {
-            _position = _controller!.value.position.inSeconds.toDouble();
+      if (widget.data.url!.startsWith("http")) {
+        _controller =
+            VideoPlayerController.networkUrl(Uri.parse(widget.data.url!))
+              ..initialize().then((_) async {
+                await _controller?.play();
+                _controllerListener();
+              });
+      } else {
+        _controller = VideoPlayerController.file(File(widget.data.url!))
+          ..initialize().then((_) async {
+            await _controller?.play();
+            _controllerListener();
           });
-        }
-        if (_controller!.value.hasError) {
-          final error = _controller!.value.errorDescription ?? 'Unknown error';
-          debugPrint('error: $error');
-          if (widget.onPlayError != null) {
-            widget.onPlayError!(error);
-          }
-        }
-        if (_controller!.value.isPlaying != _playing) {
-          _playing = _controller!.value.isPlaying;
-          print('_playing ${_playing}');
-          if (widget.onPlayStateListener != null) {
-            widget.onPlayStateListener!(_playing);
-          }
-        }
-      });
+      }
       if (widget.onPlayControllerListener != null) {
         widget.onPlayControllerListener!(_controller!);
       }
     }
+  }
+
+  void _controllerListener() {
+    _controller!.addListener(() {
+      if (!_userSlider) {
+        setState(() {
+          _position = _controller!.value.position.inSeconds.toDouble();
+        });
+      }
+      if (_controller!.value.hasError) {
+        debugPrint(
+            'error: ${_controller!.value.errorDescription ?? 'Unknown error'}');
+      }
+      if (_controller!.value.isPlaying != _playing) {
+        _playing = _controller!.value.isPlaying;
+        debugPrint('_playing ${_playing}');
+        if (widget.onPlayStateListener != null) {
+          widget.onPlayStateListener!(_playing);
+        }
+      }
+    });
   }
 
   /// 检查封面是否存在缓存文件
@@ -321,12 +345,13 @@ class VideoPreviewState extends State<VideoPreview> {
   }
 
   Widget buildPlayIconWidget() {
+    if (_startPop) return SizedBox();
     return Center(
       child: Opacity(
         opacity: 0.5,
         child: Icon(
           Icons.play_circle_outline,
-          color: Color(0xFFEEEEEE),
+          color: Color(0xFFDDDDDD),
           size: widget.playIconSize,
         ),
       ),
