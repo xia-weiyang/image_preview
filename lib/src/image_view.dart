@@ -156,7 +156,7 @@ class _ImagePreviewState extends State<ImagePreview> {
       image = Image.memory(widget.data.thumbnailData!, fit: BoxFit.contain);
     } else if (imageProvideThumbnail != null) {
       image = Image(
-        image: FileImage(File.fromUri(Uri.file(widget.data.thumbnailPath!))),
+        image: imageProvideThumbnail!,
         fit: BoxFit.contain,
       );
     }

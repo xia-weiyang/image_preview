@@ -1,3 +1,5 @@
+## 1.3.5
+* Fix web bug.
 ## 1.3.6
 * Add play error callback.
 ## 1.3.5
