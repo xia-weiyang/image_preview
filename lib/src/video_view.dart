@@ -151,7 +151,9 @@ class VideoPreviewState extends State<VideoPreview> {
             if (_controller != null &&
                 (!_controller!.value.isInitialized ||
                     _controller!.value.isBuffering) &&
-                !_controller!.value.isCompleted)
+                (_controller!.value.position.inSeconds <
+                        _controller!.value.duration.inSeconds ||
+                    _controller!.value.position.inSeconds == 0))
               Align(
                 alignment: Alignment.center,
                 child: !kIsWeb && (Platform.isIOS || Platform.isMacOS)

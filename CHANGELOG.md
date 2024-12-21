@@ -1,4 +1,6 @@
-## 1.3.5
+## 1.3.8
+* Remove isCompleted call.
+## 1.3.7
 * Fix web bug.
 ## 1.3.6
 * Add play error callback.
