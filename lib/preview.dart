@@ -72,6 +72,7 @@ void openPreviewPage(
   OnPageChanged? onPageChanged,
   OnPlayError? onPlayError,
   OnPlayControllerListener? onPlayControllerListener,
+  double extraVideoBottomPadding = 0,
 }) {
   navigatorState.push(FadePageRoute<void>(builder: (BuildContext context) {
     return ImageGalleryPage(
@@ -83,6 +84,7 @@ void openPreviewPage(
       onPageChanged: onPageChanged,
       onPlayError: onPlayError,
       onPlayControllerListener: onPlayControllerListener,
+      extraVideoBottomPadding: extraVideoBottomPadding,
     );
   }));
 }
@@ -103,6 +105,7 @@ void openPreviewPages(
   OnPageChanged? onPageChanged,
   OnPlayError? onPlayError,
   OnPlayControllerListener? onPlayControllerListener,
+  double extraVideoBottomPadding = 0,
 }) {
   navigatorState.push(FadePageRoute<void>(builder: (BuildContext context) {
     return ImageGalleryPage(
@@ -116,6 +119,7 @@ void openPreviewPages(
       onPageChanged: onPageChanged,
       onPlayError: onPlayError,
       onPlayControllerListener: onPlayControllerListener,
+      extraVideoBottomPadding: extraVideoBottomPadding,
     );
   }));
 }

@@ -21,6 +21,7 @@ class VideoPreview extends StatefulWidget {
     this.onPlayStateListener,
     this.onPlayControllerListener,
     this.onPlayError,
+    this.extraBottomPadding = 0,
   });
 
   final VideoData data;
@@ -31,6 +32,7 @@ class VideoPreview extends StatefulWidget {
   final OnPlayStateListener? onPlayStateListener;
   final OnPlayControllerListener? onPlayControllerListener;
   final OnPlayError? onPlayError;
+  final double extraBottomPadding;
 
   @override
   State<StatefulWidget> createState() => VideoPreviewState();
@@ -39,6 +41,7 @@ class VideoPreview extends StatefulWidget {
 class VideoPreviewState extends State<VideoPreview> {
   var _open = false;
   VideoPlayerController? _controller;
+  VoidCallback? listener;
   double _position = 0;
   var _userSlider = false; // 用户在触发进度条
   var _showTime = false;
@@ -64,6 +67,9 @@ class VideoPreviewState extends State<VideoPreview> {
 
   @override
   void dispose() {
+    if (listener != null) {
+      _controller?.removeListener(listener!);
+    }
     _controller?.dispose();
     super.dispose();
   }
@@ -167,7 +173,12 @@ class VideoPreviewState extends State<VideoPreview> {
                 alignment: Alignment.bottomCenter,
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(
-                      16, 0, 16, MediaQuery.of(context).padding.bottom + 8),
+                      16,
+                      0,
+                      16,
+                      MediaQuery.of(context).padding.bottom +
+                          8 +
+                          widget.extraBottomPadding),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                       maxHeight: 20,
@@ -322,7 +333,10 @@ class VideoPreviewState extends State<VideoPreview> {
   }
 
   void _controllerListener() {
-    _controller!.addListener(() {
+    if (listener != null) {
+      _controller!.removeListener(listener!);
+    }
+    _controller!.addListener(listener = () {
       if (!_userSlider) {
         setState(() {
           _position = _controller!.value.position.inSeconds.toDouble();

@@ -1,3 +1,5 @@
+## 1.3.9
+* Add extraVideoBottomPadding.
 ## 1.3.8
 * Remove isCompleted call.
 ## 1.3.7

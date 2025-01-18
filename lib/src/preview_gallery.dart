@@ -19,6 +19,7 @@ class ImageGalleryPage extends StatefulWidget {
     this.disableOnTap = false,
     this.onPlayControllerListener,
     this.onPlayError,
+    this.extraVideoBottomPadding = 0,
   }) : super(key: key) {}
 
   @override
@@ -43,6 +44,8 @@ class ImageGalleryPage extends StatefulWidget {
   final OnPlayControllerListener? onPlayControllerListener;
 
   final OnPlayError? onPlayError;
+
+  final double extraVideoBottomPadding;
 }
 
 class _ImageGalleryPageState extends State<ImageGalleryPage> {
@@ -217,6 +220,7 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
             _isPlaying = isPlaying;
           });
         },
+        extraBottomPadding: widget.extraVideoBottomPadding,
       );
     } else {
       return SizedBox();
