@@ -1,3 +1,5 @@
+## 1.3.10
+* Update Uint8List data param to imageProvide.
 ## 1.3.9
 * Add extraVideoBottomPadding.
 ## 1.3.8

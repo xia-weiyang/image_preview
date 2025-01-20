@@ -131,7 +131,9 @@ class VideoPreviewState extends State<VideoPreview> {
             if ((_controller == null ||
                     !_controller!.value.isInitialized ||
                     _controller!.value.position.inSeconds == 0) &&
-                (kIsWeb || widget.data.coverData != null || _existCoverFile()))
+                (kIsWeb ||
+                    widget.data.coverProvide != null ||
+                    _existCoverFile()))
               Align(
                 alignment: Alignment.center,
                 child: Hero(
@@ -142,8 +144,9 @@ class VideoPreviewState extends State<VideoPreview> {
                             image: NetworkImage(widget.data.coverUrl ?? ''),
                             fit: BoxFit.contain,
                           )
-                        : widget.data.coverData != null
-                            ? Image.memory(widget.data.coverData!,
+                        : widget.data.coverProvide != null
+                            ? Image(
+                                image: widget.data.coverProvide!,
                                 fit: BoxFit.contain)
                             : Image(
                                 image: FileImage(File.fromUri(
