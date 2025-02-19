@@ -117,7 +117,9 @@ class VideoPreviewState extends State<VideoPreview> {
         },
         child: Stack(
           children: [
-            if (_controller != null && _controller!.value.isInitialized)
+            if (_controller != null &&
+                _controller!.value.isInitialized &&
+                _controller!.value.position.inMilliseconds > 0)
               Align(
                 alignment: Alignment.center,
                 child: AspectRatio(
@@ -130,7 +132,7 @@ class VideoPreviewState extends State<VideoPreview> {
               ),
             if ((_controller == null ||
                     !_controller!.value.isInitialized ||
-                    _controller!.value.position.inSeconds == 0) &&
+                    _controller!.value.position.inMilliseconds == 0) &&
                 (kIsWeb ||
                     widget.data.coverProvide != null ||
                     _existCoverFile()))

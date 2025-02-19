@@ -1,3 +1,5 @@
+## 1.3.11
+* Fix bug.
 ## 1.3.10
 * Update Uint8List data param to imageProvide.
 ## 1.3.9
