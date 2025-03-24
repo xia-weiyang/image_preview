@@ -1,5 +1,9 @@
-## 1.3.10
+## 1.3.12
 * Play video and save the screen always on.
+## 1.3.11
+* Fix bug.
+## 1.3.10
+* Update Uint8List data param to imageProvide.
 ## 1.3.9
 * Add extraVideoBottomPadding.
 ## 1.3.8

@@ -45,9 +45,9 @@ class _VideoPreviewCoverWidgetState extends State<VideoPreviewCoverWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.data.coverData != null) {
-      return buildPlayIconWidget(Image.memory(
-        widget.data.coverData!,
+    if (widget.data.coverProvide != null) {
+      return buildPlayIconWidget(Image(
+        image: widget.data.coverProvide!,
         fit: widget.fit,
       ));
     }

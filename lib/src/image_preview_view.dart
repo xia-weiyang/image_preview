@@ -42,9 +42,9 @@ class _ImagePreviewThumbnailViewState extends State<ImagePreviewThumbnailView> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.data.thumbnailData != null) {
-      return Image.memory(
-        widget.data.thumbnailData!,
+    if (widget.data.thumbnailProvide != null) {
+      return Image(
+        image: widget.data.thumbnailProvide!,
         fit: widget.fit,
       );
     }

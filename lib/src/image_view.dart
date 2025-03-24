@@ -85,7 +85,7 @@ class _ImagePreviewState extends State<ImagePreview> {
                   return ImageLoading(
                     tag: widget.heroTag,
                     showLoading: false,
-                    data: widget.data.thumbnailData,
+                    provider: widget.data.thumbnailProvide,
                     path: _existThumbnailFile()
                         ? widget.data.thumbnailPath
                         : null,
@@ -108,7 +108,7 @@ class _ImagePreviewState extends State<ImagePreview> {
               } else {
                 return ImageLoading(
                   tag: widget.heroTag,
-                  data: widget.data.thumbnailData,
+                  provider: widget.data.thumbnailProvide,
                   path:
                       _existThumbnailFile() ? widget.data.thumbnailPath : null,
                 );
@@ -152,8 +152,8 @@ class _ImagePreviewState extends State<ImagePreview> {
 
   Widget _buildImageWidgetPreWeb() {
     Widget? image = null;
-    if (widget.data.thumbnailData != null) {
-      image = Image.memory(widget.data.thumbnailData!, fit: BoxFit.contain);
+    if (widget.data.thumbnailProvide != null) {
+      image = Image(image: widget.data.thumbnailProvide!, fit: BoxFit.contain);
     } else if (imageProvideThumbnail != null) {
       image = Image(
         image: imageProvideThumbnail!,
@@ -166,8 +166,8 @@ class _ImagePreviewState extends State<ImagePreview> {
 
   Widget _buildImageWidgetPre() {
     Widget? image = null;
-    if (widget.data.thumbnailData != null) {
-      image = Image.memory(widget.data.thumbnailData!, fit: BoxFit.contain);
+    if (widget.data.thumbnailProvide != null) {
+      image = Image(image: widget.data.thumbnailProvide!, fit: BoxFit.contain);
     } else if (_existThumbnailFile()) {
       image = Image(
         image: FileImage(File.fromUri(Uri.file(widget.data.thumbnailPath!))),
@@ -255,14 +255,14 @@ class _ImagePreviewState extends State<ImagePreview> {
 
 class ImageLoading extends StatelessWidget {
   final String? path;
-  final Uint8List? data;
+  final ImageProvider? provider;
   final String? tag;
   final bool showLoading;
 
   const ImageLoading({
     Key? key,
     this.path,
-    this.data,
+    this.provider,
     this.showLoading = true,
     this.tag,
   }) : super(key: key);
@@ -279,8 +279,8 @@ class ImageLoading extends StatelessWidget {
     ));
 
     Widget? image = null;
-    if (data != null) {
-      image = Image.memory(data!, fit: BoxFit.contain);
+    if (provider != null) {
+      image = Image(image: provider!, fit: BoxFit.contain);
     } else if (path != null || path!.isNotEmpty) {
       image = Image(
         image: FileImage(File.fromUri(Uri.file(path!))),
