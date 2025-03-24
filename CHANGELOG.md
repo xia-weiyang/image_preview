@@ -1,3 +1,5 @@
+## 1.3.10
+* Play video and save the screen always on.
 ## 1.3.9
 * Add extraVideoBottomPadding.
 ## 1.3.8

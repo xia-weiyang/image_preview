@@ -7,6 +7,7 @@ import 'package:image_preview/preview_data.dart';
 import 'package:image_preview/src/preview_gallery.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:video_player/video_player.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 typedef OnPlayStateListener(bool isPlaying);
 
@@ -56,6 +57,7 @@ class VideoPreviewState extends State<VideoPreview> {
     }
     if (widget.data.coverUrl != null && widget.data.coverUrl!.isNotEmpty) {}
     super.initState();
+    WakelockPlus.enable();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       if (_open) {
         await Future.delayed(Duration(milliseconds: 500));
@@ -72,6 +74,7 @@ class VideoPreviewState extends State<VideoPreview> {
     }
     _controller?.dispose();
     super.dispose();
+    WakelockPlus.enable();
   }
 
   @override

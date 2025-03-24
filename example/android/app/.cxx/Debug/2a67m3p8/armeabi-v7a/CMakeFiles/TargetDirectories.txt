@@ -1,0 +1,2 @@
+/Users/xia/Work/project/image_preview/example/android/app/.cxx/Debug/2a67m3p8/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/xia/Work/project/image_preview/example/android/app/.cxx/Debug/2a67m3p8/armeabi-v7a/CMakeFiles/rebuild_cache.dir
