@@ -2,11 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_preview/preview.dart';
 import 'package:image_preview/preview_data.dart';
 import 'package:path_provider/path_provider.dart';
 
-void main() => runApp(const MyApp());
+void main() {
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -38,6 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       String path = '';
       if (!kIsWeb) {
@@ -54,8 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
           image: ImageData(
             url: 'https://xia-weiyang.github.io/image/1.jpg',
             path: '$path/image/1.jpg',
-            thumbnailUrl:
-                'https://xia-weiyang.github.io/image/1_thumbnail.jpg',
+            thumbnailUrl: 'https://xia-weiyang.github.io/image/1_thumbnail.jpg',
             thumbnailPath: '$path/image/1_thumbnail.jpg',
           ),
         ),
@@ -105,7 +108,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     Navigator.of(context),
                     data: dataList,
                     index: i,
-                    indicator: kIsWeb || Platform.isMacOS ||
+                    indicator: kIsWeb ||
+                        Platform.isMacOS ||
                         Platform.isWindows ||
                         Platform.isLinux,
                     tipWidget: (currentIndex) {

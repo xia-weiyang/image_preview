@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_preview/preview.dart';
 import 'package:image_preview/preview_data.dart';
 import 'package:image_preview/src/image_view.dart';
@@ -53,6 +56,7 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
   late bool _locked;
   var _firstOpen = true;
   var _currentPage = -1;
+  SystemUiOverlayStyle? systemOverlayStyle;
 
   // 是否视频正在播放中
   bool _isPlaying = false;
@@ -66,10 +70,28 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
     _locked = false;
     _currentPage = widget.initialIndex;
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      systemOverlayStyle = Theme.of(context).appBarTheme.systemOverlayStyle;
+      if (systemOverlayStyle != null) {
+        SystemChrome.setSystemUIOverlayStyle(systemOverlayStyle!.copyWith(
+          statusBarIconBrightness:
+              Platform.isIOS ? Brightness.dark : Brightness.light,
+          statusBarBrightness:
+              Platform.isIOS ? Brightness.dark : Brightness.light,
+          systemNavigationBarIconBrightness:
+              Platform.isIOS ? Brightness.dark : Brightness.light,
+        ));
+      }
       _handlerPageChanged(widget.initialIndex);
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    if (systemOverlayStyle != null) {
+      SystemChrome.setSystemUIOverlayStyle(systemOverlayStyle!);
+    }
   }
 
   void _scaleStateChangedCallback(PhotoViewScaleState scaleState) {

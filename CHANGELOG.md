@@ -1,3 +1,5 @@
+## 1.3.13
+* Try to fix the color of the navigation bar.
 ## 1.3.12
 * Play video and save the screen always on.
 ## 1.3.11
