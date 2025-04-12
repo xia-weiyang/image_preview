@@ -68,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
           video: VideoData(
               coverUrl: 'https://xia-weiyang.github.io/image/2.jpg',
               coverPath: '$path/image/2.jpg',
-              url: 'https://xia-weiyang.github.io/video/trailer.mp4'),
+              url: 'https://file.jiushig.com/content/mood/9715/video/d6d15c02d44e4eed8190456f66255a5a.mov'),
         ),
         PreviewData(
           type: Type.image,

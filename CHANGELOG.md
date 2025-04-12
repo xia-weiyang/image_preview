@@ -1,3 +1,5 @@
+## 1.3.14
+* Fix bug.
 ## 1.3.13
 * Try to fix the color of the navigation bar.
 ## 1.3.12

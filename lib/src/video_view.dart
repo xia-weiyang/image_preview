@@ -125,13 +125,21 @@ class VideoPreviewState extends State<VideoPreview> {
                 _controller!.value.position.inMilliseconds > 0)
               Align(
                 alignment: Alignment.center,
-                child: AspectRatio(
-                  aspectRatio: _controller!.value.aspectRatio,
-                  child: Hero(
-                    child: VideoPlayer(_controller!),
-                    tag: widget.heroTag,
-                  ),
-                ),
+                child: Builder(builder: (context) {
+                  final rotationCorrection =
+                      _controller!.value.rotationCorrection;
+                  var aspectRatio = _controller!.value.aspectRatio;
+                  if (rotationCorrection == 90 || rotationCorrection == 270) {
+                    aspectRatio = 1 / aspectRatio;
+                  }
+                  return AspectRatio(
+                    aspectRatio: aspectRatio,
+                    child: Hero(
+                      child: VideoPlayer(_controller!),
+                      tag: widget.heroTag,
+                    ),
+                  );
+                }),
               ),
             if ((_controller == null ||
                     !_controller!.value.isInitialized ||
