@@ -1,3 +1,5 @@
+## 1.3.15
+* Fix the problem that it is impossible to zoom in with two fingers.
 ## 1.3.14
 * Fix bug.
 ## 1.3.13

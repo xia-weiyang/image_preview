@@ -64,6 +64,9 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
   Widget? _tempWidget;
   int? _tempIndex;
 
+  // 手指触摸的个数
+  int pointerCount = 0;
+
   @override
   void initState() {
     _controller = PageController(initialPage: widget.initialIndex);
@@ -133,30 +136,44 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
                   : () {
                       Navigator.of(context).pop();
                     },
-              child: PageView.builder(
-                controller: _controller,
-                itemCount: itemCount,
-                onPageChanged: (index) {
-                  // print(index);
-                  _handlerPageChanged(index);
+              child: Listener(
+                onPointerDown: (event) {
+                //  print('onPointerDown:$event');
+                  setState(() {
+                    pointerCount++;
+                  });
                 },
-                itemBuilder: (BuildContext context, int index) {
-                  if (index == _tempIndex && _tempWidget != null) {
-                    return _tempWidget!;
-                  }
+                onPointerUp: (event) {
+               //   print('onPointerUp:$event');
+                  setState(() {
+                    pointerCount--;
+                  });
+                },
+                child: PageView.builder(
+                  controller: _controller,
+                  itemCount: itemCount,
+                  onPageChanged: (index) {
+                    // print(index);
+                    _handlerPageChanged(index);
+                  },
+                  itemBuilder: (BuildContext context, int index) {
+                    if (index == _tempIndex && _tempWidget != null) {
+                      return _tempWidget!;
+                    }
 
-                  final widget = _buildItem(
-                    context,
-                    index,
-                  );
-                  _firstOpen = false;
-                  _tempIndex = index;
-                  _tempWidget = widget;
-                  return widget;
-                },
-                physics: _locked
-                    ? const NeverScrollableScrollPhysics()
-                    : ClampingScrollPhysics(),
+                    final widget = _buildItem(
+                      context,
+                      index,
+                    );
+                    _firstOpen = false;
+                    _tempIndex = index;
+                    _tempWidget = widget;
+                    return widget;
+                  },
+                  physics: _locked || pointerCount >= 2
+                      ? const NeverScrollableScrollPhysics()
+                      : const ClampingScrollPhysics(),
+                ),
               ),
             ),
             if (tipTemp != null) tipTemp,
