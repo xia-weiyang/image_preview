@@ -46,6 +46,7 @@ class ImageData {
   const ImageData({
     this.path,
     this.url,
+    this.asyncPath,
     this.thumbnailUrl,
     this.thumbnailPath,
     this.thumbnailProvide,
@@ -55,6 +56,9 @@ class ImageData {
 
   /// 图片文件的缓存路径
   final String? path;
+
+  /// 异步获取图片路径
+  final AsyncPath? asyncPath;
 
   /// 缩略图的本地路径
   final String? thumbnailPath;
@@ -94,6 +98,7 @@ class VideoData {
     this.coverUrl,
     this.coverProvide,
     this.url,
+    this.asyncPath,
   });
 
   /// 视频封面缓存路径
@@ -106,6 +111,9 @@ class VideoData {
 
   /// 视频地址
   final String? url;
+
+  /// 异步获取图片路径
+  final AsyncPath? asyncPath;
 
   Map<String, dynamic> toJson() {
     return {
@@ -136,3 +144,5 @@ List<PreviewData> convertJsonToPreviewDataList(String json) {
       .map((it) => PreviewData.fromJson(it))
       .toList();
 }
+
+typedef Future<String> AsyncPath();

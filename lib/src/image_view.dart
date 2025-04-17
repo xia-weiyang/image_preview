@@ -36,10 +36,12 @@ class _ImagePreviewState extends State<ImagePreview> {
   var open = false;
   ImageProvider? imageProvide;
   ImageProvider? imageProvideThumbnail;
+  String? _targetPath;
 
   @override
   void initState() {
     open = widget.open;
+    _targetPath = widget.data.path;
     if (widget.data.url != null && widget.data.url!.isNotEmpty) {
       imageProvide = NetworkImage(widget.data.url!);
     }
@@ -59,7 +61,9 @@ class _ImagePreviewState extends State<ImagePreview> {
   @override
   void didUpdateWidget(covariant ImagePreview oldWidget) {
     if (widget.data.url != oldWidget.data.url ||
+        widget.data.asyncPath != widget.data.asyncPath ||
         widget.data.path != oldWidget.data.path) {
+      _targetPath = widget.data.path;
       fileDownloader?.cancel();
       fileDownloader = null;
       downloadFuture = null;
@@ -175,7 +179,7 @@ class _ImagePreviewState extends State<ImagePreview> {
       );
     }
     return _buildImageWidget(
-      FileImage(File.fromUri(Uri.file(widget.data.path!))),
+      FileImage(File.fromUri(Uri.file(_targetPath ?? ''))),
       image,
     );
   }
@@ -223,8 +227,8 @@ class _ImagePreviewState extends State<ImagePreview> {
 
   /// 检查path是否存在缓存文件
   bool _existFile() {
-    if (widget.data.path == null) return false;
-    final file = File(widget.data.path!);
+    if (_targetPath == null) return false;
+    final file = File(_targetPath!);
     bool result = file.existsSync();
     return result;
   }
@@ -244,12 +248,17 @@ class _ImagePreviewState extends State<ImagePreview> {
   }
 
   Future<String> _downloadFile() async {
-    if (widget.data.path == null || widget.data.path!.isEmpty)
+    if (widget.data.asyncPath != null) {
+      if (open) await Future.delayed(Duration(milliseconds: 500));
+      _targetPath = await widget.data.asyncPath!();
+      return 'success';
+    }
+    if (_targetPath == null || _targetPath!.isEmpty)
       return "No download path specified.";
     if (widget.data.url == null || widget.data.url!.isEmpty)
       return "No download url specified.";
     fileDownloader ??= FileDownloader();
-    return await fileDownloader!.download(widget.data.url!, widget.data.path!);
+    return await fileDownloader!.download(widget.data.url!, _targetPath!);
   }
 }
 

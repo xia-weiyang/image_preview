@@ -319,24 +319,33 @@ class VideoPreviewState extends State<VideoPreview> {
     );
   }
 
-  void _preparePlay() {
+  void _preparePlay() async {
+    var playUrl = widget.data.url;
+    if ((playUrl == null || playUrl.isEmpty) && widget.data.asyncPath != null) {
+      playUrl = await widget.data.asyncPath!();
+    }
+
+    if(playUrl == null || playUrl.isEmpty){
+      debugPrint('playUrl is null');
+    }
+
     if (!kIsWeb && (Platform.isLinux || Platform.isWindows)) {
-      _launchURL(widget.data.url!);
+      _launchURL(playUrl!);
       return;
     }
 
     if (_controller == null) {
-      debugPrint('play:${widget.data.url}');
+      debugPrint('play:${playUrl!}');
       _playing = false;
-      if (widget.data.url!.startsWith("http")) {
+      if (playUrl.startsWith("http")) {
         _controller =
-            VideoPlayerController.networkUrl(Uri.parse(widget.data.url!))
+            VideoPlayerController.networkUrl(Uri.parse(playUrl))
               ..initialize().then((_) async {
                 await _controller?.play();
                 _controllerListener();
               });
       } else {
-        _controller = VideoPlayerController.file(File(widget.data.url!))
+        _controller = VideoPlayerController.file(File(playUrl))
           ..initialize().then((_) async {
             await _controller?.play();
             _controllerListener();
