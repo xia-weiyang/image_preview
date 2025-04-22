@@ -1,3 +1,5 @@
+## 1.3.17
+* Remove video_player_android
 ## 1.3.16
 * Add AsyncPath.
 ## 1.3.15
