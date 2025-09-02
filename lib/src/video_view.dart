@@ -74,7 +74,7 @@ class VideoPreviewState extends State<VideoPreview> {
     }
     _controller?.dispose();
     super.dispose();
-    WakelockPlus.enable();
+    WakelockPlus.disable();
   }
 
   @override
@@ -126,8 +126,10 @@ class VideoPreviewState extends State<VideoPreview> {
               Align(
                 alignment: Alignment.center,
                 child: Builder(builder: (context) {
-                  final rotationCorrection =
-                      _controller!.value.rotationCorrection;
+                  var rotationCorrection = 0;
+                  try {
+                    rotationCorrection = _controller!.value.rotationCorrection;
+                  } catch (e) {}
                   var aspectRatio = _controller!.value.aspectRatio;
                   if (rotationCorrection == 90 || rotationCorrection == 270) {
                     aspectRatio = 1 / aspectRatio;
