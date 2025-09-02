@@ -143,6 +143,12 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
                     pointerCount++;
                   });
                 },
+                onPointerCancel: (event){
+                //  print('onPointerCancel:$event');
+                  setState(() {
+                    pointerCount--;
+                  });
+                },
                 onPointerUp: (event) {
                //   print('onPointerUp:$event');
                   setState(() {
