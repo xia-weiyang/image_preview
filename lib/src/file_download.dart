@@ -38,6 +38,9 @@ void _download(_DownloaderData data) async {
     data.request = await _httpClient!.getUrl(Uri.parse(data.url));
     // 发送请求并获取响应
     HttpClientResponse response = await data.request!.close();
+    if(response.statusCode != HttpStatus.ok) {
+      throw 'Download error: statusCode:${response.statusCode}';
+    }
     // 使用临时文件路径
     String tempFilePath = '${data.savePath}.temp';
     File tempFile = File(tempFilePath);
