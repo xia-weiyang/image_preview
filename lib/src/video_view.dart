@@ -48,6 +48,9 @@ class VideoPreviewState extends State<VideoPreview> {
   var _showTime = false;
   var _playing = false;
   var _startPop = false;
+  var _buffering = true;
+  var _playPrepared = false;
+  var _paused = false;
 
   @override
   void initState() {
@@ -85,25 +88,21 @@ class VideoPreviewState extends State<VideoPreview> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      onPopInvoked: (_) {
+      canPop: true,
+      onPopInvokedWithResult: (_, __) {
         setState(() {
           _startPop = true;
         });
       },
-      canPop: true,
-      // onPopInvokedWithResult: (_, __) {
-      //   setState(() {
-      //     _startPop = true;
-      //   });
-      // },
       child: GestureDetector(
         behavior: HitTestBehavior.deferToChild,
-        onTap: _controller != null && _controller!.value.isPlaying
+        onTap: _playPrepared && !_paused
             ? () {
-                if (_controller != null && _controller!.value.isPlaying) {
+                if (_playing) {
                   _controller!.pause();
                   setState(() {
                     _showTime = true;
+                    _paused = true;
                   });
                 }
               }
@@ -120,9 +119,7 @@ class VideoPreviewState extends State<VideoPreview> {
         },
         child: Stack(
           children: [
-            if (_controller != null &&
-                _controller!.value.isInitialized &&
-                _controller!.value.position.inMilliseconds > 0)
+            if (_playPrepared)
               Align(
                 alignment: Alignment.center,
                 child: Builder(builder: (context) {
@@ -143,12 +140,7 @@ class VideoPreviewState extends State<VideoPreview> {
                   );
                 }),
               ),
-            if ((_controller == null ||
-                    !_controller!.value.isInitialized ||
-                    _controller!.value.position.inMilliseconds == 0) &&
-                (kIsWeb ||
-                    widget.data.coverProvide != null ||
-                    _existCoverFile()))
+            if (!_playPrepared && (kIsWeb || widget.data.coverProvide != null || _existCoverFile()))
               Align(
                 alignment: Alignment.center,
                 child: Hero(
@@ -160,24 +152,16 @@ class VideoPreviewState extends State<VideoPreview> {
                             fit: BoxFit.contain,
                           )
                         : widget.data.coverProvide != null
-                            ? Image(
-                                image: widget.data.coverProvide!,
-                                fit: BoxFit.contain)
+                            ? Image(image: widget.data.coverProvide!, fit: BoxFit.contain)
                             : Image(
-                                image: FileImage(File.fromUri(
-                                    Uri.file(widget.data.coverPath!))),
+                                image: FileImage(File.fromUri(Uri.file(widget.data.coverPath!))),
                                 fit: BoxFit.contain,
                               ),
                   ),
                   tag: widget.heroTag,
                 ),
               ),
-            if (_controller != null &&
-                (!_controller!.value.isInitialized ||
-                    _controller!.value.isBuffering) &&
-                (_controller!.value.position.inSeconds <
-                        _controller!.value.duration.inSeconds ||
-                    _controller!.value.position.inSeconds == 0))
+            if (_buffering && !_playing && !_paused)
               Align(
                 alignment: Alignment.center,
                 child: !kIsWeb && (Platform.isIOS || Platform.isMacOS)
@@ -186,17 +170,12 @@ class VideoPreviewState extends State<VideoPreview> {
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
                       ),
               ),
-            if (_controller != null && _controller!.value.isInitialized)
+            if (_playPrepared)
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(
-                      16,
-                      0,
-                      16,
-                      MediaQuery.of(context).padding.bottom +
-                          8 +
-                          widget.extraBottomPadding),
+                      16, 0, 16, MediaQuery.of(context).padding.bottom + 8 + widget.extraBottomPadding),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                       maxHeight: 20,
@@ -207,16 +186,12 @@ class VideoPreviewState extends State<VideoPreview> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         SizedBox(
-                          width:
-                              60 * MediaQuery.of(context).textScaler.scale(1),
+                          width: 60 * MediaQuery.of(context).textScaler.scale(1),
                           child: _showTime
                               ? Center(
                                   child: Text(
-                                    _formatDuration(
-                                        Duration(seconds: _position.toInt())),
-                                    style: TextStyle(
-                                        color: Colors.grey.shade600,
-                                        fontSize: 11),
+                                    _formatDuration(Duration(milliseconds: _position.toInt())),
+                                    style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
                                   ),
                                 )
                               : null,
@@ -231,14 +206,12 @@ class VideoPreviewState extends State<VideoPreview> {
                                 inactiveTrackColor: Colors.grey.shade800,
                                 activeTrackColor: Colors.grey.shade600,
                                 thumbColor: Colors.grey.shade600,
-                                thumbShape: RoundSliderThumbShape(
-                                    enabledThumbRadius: 5),
+                                thumbShape: RoundSliderThumbShape(enabledThumbRadius: 5),
                               ),
                               child: Slider(
                                 value: _position,
                                 min: 0,
-                                max: _controller!.value.duration.inSeconds
-                                    .toDouble(),
+                                max: _controller!.value.duration.inMilliseconds.toDouble(),
                                 onChanged: (value) {
                                   debugPrint('onChanged: $value');
                                   setState(() {
@@ -256,9 +229,8 @@ class VideoPreviewState extends State<VideoPreview> {
                                   debugPrint('onChangeEnd: $value');
                                   _userSlider = false;
                                   // seek
-                                  _controller?.seekTo(
-                                      Duration(seconds: _position.toInt()));
-                                  if (_controller!.value.isPlaying) {
+                                  _controller?.seekTo(Duration(milliseconds: _position.toInt()));
+                                  if (_playing) {
                                     setState(() {
                                       _showTime = false;
                                     });
@@ -269,16 +241,12 @@ class VideoPreviewState extends State<VideoPreview> {
                           ),
                         ),
                         SizedBox(
-                          width:
-                              60 * MediaQuery.of(context).textScaler.scale(1),
+                          width: 60 * MediaQuery.of(context).textScaler.scale(1),
                           child: _showTime
                               ? Center(
                                   child: Text(
-                                    _formatDuration(
-                                        _controller!.value.duration),
-                                    style: TextStyle(
-                                        color: Colors.grey.shade600,
-                                        fontSize: 11),
+                                    _formatDuration(_controller!.value.duration),
+                                    style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
                                   ),
                                 )
                               : null,
@@ -288,22 +256,19 @@ class VideoPreviewState extends State<VideoPreview> {
                   ),
                 ),
               ),
-            if ((_controller == null && !_open) ||
-                (_controller != null &&
-                    !_controller!.value.isPlaying &&
-                    !_controller!.value.isBuffering &&
-                    _controller!.value.isInitialized))
+            if (!_open || _paused)
               GestureDetector(
-                onTap: () {
+                onTap: () async {
                   if (_controller == null) {
                     _preparePlay();
                     setState(() {});
                     return;
                   }
-                  if (!_controller!.value.isPlaying) {
-                    _controller!.play();
+                  if (!_playing) {
+                    await _controller!.play();
                     setState(() {
                       _showTime = false;
+                      _paused = false;
                     });
                   }
                 },
@@ -327,7 +292,7 @@ class VideoPreviewState extends State<VideoPreview> {
       playUrl = await widget.data.asyncPath!();
     }
 
-    if(playUrl == null || playUrl.isEmpty){
+    if (playUrl == null || playUrl.isEmpty) {
       debugPrint('playUrl is null');
     }
 
@@ -340,15 +305,24 @@ class VideoPreviewState extends State<VideoPreview> {
       debugPrint('play:${playUrl!}');
       _playing = false;
       if (playUrl.startsWith("http")) {
-        _controller =
-            VideoPlayerController.networkUrl(Uri.parse(playUrl))
-              ..initialize().then((_) async {
-                await _controller?.play();
-                _controllerListener();
-              });
+        _controller = VideoPlayerController.networkUrl(Uri.parse(playUrl))
+          ..initialize().then((_) async {
+            setState(() {
+              _playPrepared = true;
+            });
+            debugPrint('_playPrepared: $_playPrepared');
+            await _controller?.setLooping(true);
+            await _controller?.play();
+            _controllerListener();
+          });
       } else {
         _controller = VideoPlayerController.file(File(playUrl))
           ..initialize().then((_) async {
+            setState(() {
+              _playPrepared = true;
+            });
+            debugPrint('_playPrepared: $_playPrepared');
+            await _controller?.setLooping(true);
             await _controller?.play();
             _controllerListener();
           });
@@ -366,7 +340,7 @@ class VideoPreviewState extends State<VideoPreview> {
     _controller!.addListener(listener = () {
       if (!_userSlider) {
         setState(() {
-          _position = _controller!.value.position.inSeconds.toDouble();
+          _position = _controller!.value.position.inMilliseconds.toDouble();
         });
       }
       if (_controller!.value.hasError) {
@@ -377,11 +351,19 @@ class VideoPreviewState extends State<VideoPreview> {
         }
       }
       if (_controller!.value.isPlaying != _playing) {
-        _playing = _controller!.value.isPlaying;
-        debugPrint('_playing ${_playing}');
+        setState(() {
+          _playing = _controller!.value.isPlaying;
+        });
+        debugPrint('_playing: ${_playing}');
         if (widget.onPlayStateListener != null) {
           widget.onPlayStateListener!(_playing);
         }
+      }
+      if (_controller!.value.isBuffering != _buffering) {
+        setState(() {
+          _buffering = _controller!.value.isBuffering;
+        });
+        debugPrint('_buffering: ${_buffering}');
       }
     });
   }
