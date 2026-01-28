@@ -48,15 +48,18 @@ class VideoPreviewState extends State<VideoPreview> {
   var _showTime = false;
   var _playing = false;
   var _startPop = false;
-  var _buffering = true;
+  var _buffering = false;
   var _playPrepared = false;
-  var _paused = false;
+  var _paused = true;
 
   @override
   void initState() {
     _open = widget.open;
     if (!kIsWeb && (Platform.isWindows || Platform.isLinux)) {
       _open = false;
+    }
+    if (_open) {
+      _paused = false;
     }
     if (widget.data.coverUrl != null && widget.data.coverUrl!.isNotEmpty) {}
     super.initState();
@@ -65,7 +68,10 @@ class VideoPreviewState extends State<VideoPreview> {
       if (_open) {
         await Future.delayed(Duration(milliseconds: 500));
         _preparePlay();
-        setState(() {});
+        setState(() {
+          _buffering = true;
+          _paused = false;
+        });
       }
     });
   }
@@ -140,7 +146,10 @@ class VideoPreviewState extends State<VideoPreview> {
                   );
                 }),
               ),
-            if (!_playPrepared && (kIsWeb || widget.data.coverProvide != null || _existCoverFile()))
+            if (!_playPrepared &&
+                (kIsWeb ||
+                    widget.data.coverProvide != null ||
+                    _existCoverFile()))
               Align(
                 alignment: Alignment.center,
                 child: Hero(
@@ -152,9 +161,12 @@ class VideoPreviewState extends State<VideoPreview> {
                             fit: BoxFit.contain,
                           )
                         : widget.data.coverProvide != null
-                            ? Image(image: widget.data.coverProvide!, fit: BoxFit.contain)
+                            ? Image(
+                                image: widget.data.coverProvide!,
+                                fit: BoxFit.contain)
                             : Image(
-                                image: FileImage(File.fromUri(Uri.file(widget.data.coverPath!))),
+                                image: FileImage(File.fromUri(
+                                    Uri.file(widget.data.coverPath!))),
                                 fit: BoxFit.contain,
                               ),
                   ),
@@ -175,7 +187,12 @@ class VideoPreviewState extends State<VideoPreview> {
                 alignment: Alignment.bottomCenter,
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(
-                      16, 0, 16, MediaQuery.of(context).padding.bottom + 8 + widget.extraBottomPadding),
+                      16,
+                      0,
+                      16,
+                      MediaQuery.of(context).padding.bottom +
+                          8 +
+                          widget.extraBottomPadding),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                       maxHeight: 20,
@@ -186,12 +203,16 @@ class VideoPreviewState extends State<VideoPreview> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         SizedBox(
-                          width: 60 * MediaQuery.of(context).textScaler.scale(1),
+                          width:
+                              60 * MediaQuery.of(context).textScaler.scale(1),
                           child: _showTime
                               ? Center(
                                   child: Text(
-                                    _formatDuration(Duration(milliseconds: _position.toInt())),
-                                    style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
+                                    _formatDuration(Duration(
+                                        milliseconds: _position.toInt())),
+                                    style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontSize: 11),
                                   ),
                                 )
                               : null,
@@ -206,12 +227,14 @@ class VideoPreviewState extends State<VideoPreview> {
                                 inactiveTrackColor: Colors.grey.shade800,
                                 activeTrackColor: Colors.grey.shade600,
                                 thumbColor: Colors.grey.shade600,
-                                thumbShape: RoundSliderThumbShape(enabledThumbRadius: 5),
+                                thumbShape: RoundSliderThumbShape(
+                                    enabledThumbRadius: 5),
                               ),
                               child: Slider(
                                 value: _position,
                                 min: 0,
-                                max: _controller!.value.duration.inMilliseconds.toDouble(),
+                                max: _controller!.value.duration.inMilliseconds
+                                    .toDouble(),
                                 onChanged: (value) {
                                   debugPrint('onChanged: $value');
                                   setState(() {
@@ -229,7 +252,8 @@ class VideoPreviewState extends State<VideoPreview> {
                                   debugPrint('onChangeEnd: $value');
                                   _userSlider = false;
                                   // seek
-                                  _controller?.seekTo(Duration(milliseconds: _position.toInt()));
+                                  _controller?.seekTo(Duration(
+                                      milliseconds: _position.toInt()));
                                   if (_playing) {
                                     setState(() {
                                       _showTime = false;
@@ -241,12 +265,16 @@ class VideoPreviewState extends State<VideoPreview> {
                           ),
                         ),
                         SizedBox(
-                          width: 60 * MediaQuery.of(context).textScaler.scale(1),
+                          width:
+                              60 * MediaQuery.of(context).textScaler.scale(1),
                           child: _showTime
                               ? Center(
                                   child: Text(
-                                    _formatDuration(_controller!.value.duration),
-                                    style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
+                                    _formatDuration(
+                                        _controller!.value.duration),
+                                    style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontSize: 11),
                                   ),
                                 )
                               : null,
@@ -256,12 +284,15 @@ class VideoPreviewState extends State<VideoPreview> {
                   ),
                 ),
               ),
-            if (!_open || _paused)
+            if (_paused)
               GestureDetector(
                 onTap: () async {
                   if (_controller == null) {
                     _preparePlay();
-                    setState(() {});
+                    setState(() {
+                      _buffering = true;
+                      _paused = false;
+                    });
                     return;
                   }
                   if (!_playing) {

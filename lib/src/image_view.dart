@@ -105,7 +105,7 @@ class _ImagePreviewState extends State<ImagePreview> {
                   return _buildImageWidgetPre();
                 } else {
                   return ImageError(
-                    msg: '加载图片失败',
+                    msg: 'Image load failed',
                     describe: '${widget.data.url}\n${snapshot.data}',
                   );
                 }
@@ -123,8 +123,8 @@ class _ImagePreviewState extends State<ImagePreview> {
   Widget _buildWeb() {
     if (widget.data.url == null || widget.data.url!.isEmpty) {
       return ImageError(
-        msg: '加载图片失败',
-        describe: '地址为空',
+        msg: 'Image load failed',
+        describe: 'Url is empty',
       );
     }
     return open
@@ -217,7 +217,7 @@ class _ImagePreviewState extends State<ImagePreview> {
         errorBuilder: (_, msg, stack) {
           print('PhotoView error: $msg \n $stack');
           return ImageError(
-            msg: '加载图片失败',
+            msg: 'Image load failed',
             describe: '${widget.data.url}\n${msg}',
           );
         },
@@ -346,7 +346,7 @@ class ImageError extends StatelessWidget {
         ),
         SizedBox(height: 10),
         Text(
-          msg ?? '图片加载失败',
+          msg ?? 'Image load failed',
           style: TextStyle(color: Colors.red),
         ),
         SizedBox(height: 15),

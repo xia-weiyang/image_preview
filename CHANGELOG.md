@@ -1,3 +1,5 @@
+## 1.3.22
+* Fix bug.
 ## 1.3.21
 * Optimization of playback state handling.
 ## 1.3.20
