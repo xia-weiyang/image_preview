@@ -290,7 +290,7 @@ class ImageLoading extends StatelessWidget {
     Widget? image = null;
     if (provider != null) {
       image = Image(image: provider!, fit: BoxFit.contain);
-    } else if (path != null || path!.isNotEmpty) {
+    } else if (path != null && path!.isNotEmpty) {
       image = Image(
         image: FileImage(File.fromUri(Uri.file(path!))),
         fit: BoxFit.contain,
