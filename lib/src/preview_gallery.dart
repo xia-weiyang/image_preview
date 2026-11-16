@@ -249,6 +249,11 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
           open: _firstOpen && index == widget.initialIndex,
           scaleStateChangedCallback: _scaleStateChangedCallback,
           onLongPressHandler: widget.onLongPressHandler,
+          onPlayStateListener: (isPlaying) {
+            setState(() {
+              _isPlaying = isPlaying;
+            });
+          },
         ),
       );
     } else if (preview.type == Type.video) {

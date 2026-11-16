@@ -50,6 +50,8 @@ class ImageData {
     this.thumbnailUrl,
     this.thumbnailPath,
     this.thumbnailProvide,
+    this.videoUrl,
+    this.videoPath,
   });
 
   final String? url;
@@ -69,12 +71,20 @@ class ImageData {
   /// 缩略图数据
   final ImageProvider? thumbnailProvide;
 
+  /// 实况图视频地址，为空表示该图片不是实况图
+  final String? videoUrl;
+
+  /// 实况图视频文件的缓存路径
+  final String? videoPath;
+
   Map<String, dynamic> toJson() {
     return {
       'url': url,
       'path': path,
       'thumbnailUrl': thumbnailUrl,
       'thumbnailPath': thumbnailPath,
+      'videoUrl': videoUrl,
+      'videoPath': videoPath,
     };
   }
 
@@ -83,13 +93,22 @@ class ImageData {
     final path = json['path'];
     final thumbnailUrl = json['thumbnailUrl'];
     final thumbnailPath = json['thumbnailPath'];
+    final videoUrl = json['videoUrl'];
+    final videoPath = json['videoPath'];
     return ImageData(
       url: url == null ? null : url as String,
       path: path == null ? null : path as String,
       thumbnailUrl: thumbnailUrl == null ? null : thumbnailUrl as String,
       thumbnailPath: thumbnailPath == null ? null : thumbnailPath as String,
+      videoUrl: videoUrl == null ? null : videoUrl as String,
+      videoPath: videoPath == null ? null : videoPath as String,
     );
   }
+
+  /// 是否为实况图
+  bool get isLivePhoto =>
+      (videoUrl != null && videoUrl!.isNotEmpty) ||
+      (videoPath != null && videoPath!.isNotEmpty);
 }
 
 class VideoData {

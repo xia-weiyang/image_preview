@@ -12,7 +12,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -27,12 +27,12 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  const MyHomePage({super.key, required this.title});
 
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -60,6 +60,8 @@ class _MyHomePageState extends State<MyHomePage> {
             path: '$path/image/1.jpg',
             thumbnailUrl: 'https://xia-weiyang.github.io/image/1_thumbnail.jpg',
             thumbnailPath: '$path/image/1_thumbnail.jpg',
+            videoUrl: 'https://xia-weiyang.github.io/video/trailer.mp4',
+            videoPath: '$path/video/trailer.mp4',
           ),
         ),
         PreviewData(
